@@ -1,0 +1,22 @@
+[
+  {
+    "timestamp": 1711007097012,
+    "error": "[object Object]"
+  },
+  {
+    "timestamp": 1711007114567,
+    "error": "[object Object]"
+  },
+  {
+    "timestamp": 1711007119950,
+    "error": "Error: ER_DUP_ENTRY: Duplicate entry '065117251-2024-01-01' for key 'IDX_03c562ea6d52ef2f064158865d'"
+  },
+  {
+    "timestamp": 1711007172764,
+    "error": "[object Object]"
+  },
+  {
+    "timestamp": 1711007248885,
+    "error": "{\"nidn\":[\"Required\"],\"tanggal\":[\"Required\"],\"absen_masuk\":[\"Required\"]}"
+  }
+]

@@ -1,0 +1,18 @@
+const queryRunner = AppDataSource.createQueryRunner()
+await queryRunner.connect()
+await queryRunner.startTransaction()
+
+try {
+    await AppDataSource.manager.save(event.model);
+    await manager.query(`SELECT * FROM USERS`, []);
+    await queryRunner.commitTransaction()
+} catch (error) {
+    console.error('Rollback due to error:', error);
+    await queryRunner.rollbackTransaction()
+} finally {
+    await queryRunner.release()
+}
+
+error: EADDRINUSE, Address already in use
+cmd> taskkill /F /IM node.exe
+cmd> npx kill-port 3000
