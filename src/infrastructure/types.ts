@@ -1,6 +1,13 @@
 const TYPES = {
     Middleware: Symbol.for("Middleware"),
-    // Add more types here if needed
+    CommandBus: Symbol('CommandBus'),
+    QueryBus: Symbol('QueryBus'),
+    CommandHandler: Symbol('CommandHandler'),
+    QueryHandler: Symbol('QueryHandler'),
+    ApiServer: Symbol('ApiServer'),
+    AppDataSource: Symbol('AppDataSource'),
+    Controller: Symbol('Controller'),
+    Log: Symbol('Log'),
 };
 
 export { TYPES };

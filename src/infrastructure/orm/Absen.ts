@@ -3,6 +3,7 @@ import { Entity, PrimaryGeneratedColumn, Column, Index } from "typeorm"
 
 @Entity()
 @Index(['nidn', 'tanggal'], { unique: true }) //index ganda
+@Index(['tanggal', 'absen_keluar'], { unique: true }) //index ganda
 export class Absen {
 
     @PrimaryGeneratedColumn()
@@ -17,6 +18,6 @@ export class Absen {
     @Column("datetime")
     absen_masuk: string
 
-    @Column("datetime")
+    @Column("datetime",{nullable: true})
     absen_keluar: string
 }
