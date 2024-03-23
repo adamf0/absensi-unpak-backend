@@ -1,7 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { ICommandHandler } from '../../infrastructure/abstractions/messaging/ICommandHandler';
 import { CreateCutiCommand } from './CreateCutiCommand';
-import { Absen } from '../../infrastructure/orm/Absen';
 import { AppDataSource } from '../../infrastructure/config/mysql';
 import { TYPES } from '../../infrastructure/types';
 import { DataSource } from 'typeorm';
@@ -10,12 +9,12 @@ import { Cuti } from '../../infrastructure/orm/Cuti';
 @injectable()
 export class CreateCutiCommandHandler implements ICommandHandler<CreateCutiCommand> {
   commandToHandle: string = CreateCutiCommand.name;
-  _db: DataSource;
+  // _db: DataSource;
 
   constructor(
-    // @inject(TYPES.ApiServer) private readonly _db: AppDataSource
+    @inject(TYPES.DB) private readonly _db: DataSource
   ) {
-    this._db = AppDataSource.initialize();
+    // this._db = AppDataSource.initialize();
   }
 
   async handle(command: CreateCutiCommand) {

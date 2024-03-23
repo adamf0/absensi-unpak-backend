@@ -9,12 +9,12 @@ import { Absen } from '../../infrastructure/orm/Absen';
 @injectable()
 export class GetAbsenQueryHandler implements IQueryHandler<GetAbsenQuery, any> {
   queryToHandle = GetAbsenQuery.name;
-  _db: DataSource;
+  // _db: DataSource;
 
   constructor(
-    // @inject(TYPES.ApiServer) private readonly _db: AppDataSource
+    @inject(TYPES.DB) private readonly _db: DataSource
   ) {
-    this._db = AppDataSource.initialize();
+    // this._db = AppDataSource.initialize();
   }
 
   async execute(query: GetAbsenQuery) {

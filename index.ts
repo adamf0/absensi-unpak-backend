@@ -36,7 +36,7 @@ var cron = require('node-cron');
 dotenv.config();
 const port = process.env.PORT || 8000;
 var corsOptions = {
-    origin: 'http://example.com',
+    origin: '*',
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     // allowedHeaders: 'Content-Type,Authorization',
     preflightContinue: false,
@@ -78,7 +78,7 @@ server.setConfig((app: Application) => {
 //     });
 // });
 
-container.bind<AppDataSource>(AppDataSource).toSelf();
+container.bind<AppDataSource>(TYPES.DB).toConstantValue(AppDataSource.initialize());
 container.bind<ILog>(TYPES.Log).to(Log);
 container.bind<ICommandBus>(TYPES.CommandBus).toConstantValue(new CommandBus());
 container.bind<IQueryBus<IQuery>>(TYPES.QueryBus).toConstantValue(new QueryBus());

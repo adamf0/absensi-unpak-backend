@@ -9,12 +9,12 @@ import { Cuti } from '../../infrastructure/orm/Cuti';
 @injectable()
 export class GetCutiQueryHandler implements IQueryHandler<GetCutiQuery, any> {
   queryToHandle = GetCutiQuery.name;
-  _db: DataSource;
+  // _db: DataSource;
 
   constructor(
-    // @inject(TYPES.ApiServer) private readonly _db: AppDataSource
+    @inject(TYPES.DB) private readonly _db: DataSource
   ) {
-    this._db = AppDataSource.initialize();
+    // this._db = AppDataSource.initialize();
   }
 
   async execute(query: GetCutiQuery) {

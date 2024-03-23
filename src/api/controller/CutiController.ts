@@ -5,7 +5,7 @@ import { TYPES } from '../../infrastructure/types';
 import { ICommandBus } from '../../infrastructure/abstractions/messaging/ICommandBus';
 import { IQueryBus } from '../../infrastructure/abstractions/messaging/IQueryBus';
 import { ILog } from '../../infrastructure/abstractions/messaging/ILog';
-import { QueryFailedError } from 'typeorm';
+import { EntityMetadataNotFoundError, QueryFailedError } from 'typeorm';
 import { CreateCutiCommand } from '../../application/cuti/CreateCutiCommand';
 import { UpdateCutiCommand } from '../../application/cuti/UpdateCutiCommand';
 import { DeleteCutiCommand } from '../../application/cuti/DeleteCutiCommand';
@@ -138,7 +138,7 @@ export class CutiController {
     }
   }
 
-  @httpPost('create')
+  @httpPost('/create')
   async store(@request() req: Request, @response() res: Response) {
       try {
         console.log(req.body)
@@ -182,6 +182,18 @@ export class CutiController {
                 validation: [],
                 log: process.env.deploy == "dev" ? error.driverError : "error server",
             });
+        } if (error instanceof EntityMetadataNotFoundError) {
+            if(process.env.deploy != "dev"){
+                this._log.saveLog(error.message);
+            }
+            res.status(500).json({
+                status: 500,
+                message: "error server",
+                data: null,
+                list: null,
+                validation: [],
+                log: process.env.deploy == "dev" ? error : "error server",
+            });
         } else {
             if(error.name.IsNull){
                 if(process.env.deploy != "dev"){
@@ -212,7 +224,7 @@ export class CutiController {
     }
   }
 
-  @httpPost('update/:id')
+  @httpPost('/update/:id')
   async update(@request() req: Request, @response() res: Response) {
       try {
         console.log(req.body)
@@ -287,7 +299,7 @@ export class CutiController {
     }
   }
 
-  @httpPost('delete/:id')
+  @httpPost('/delete/:id')
   async delete(@request() req: Request, @response() res: Response) {
       try {
         console.log(req.body)

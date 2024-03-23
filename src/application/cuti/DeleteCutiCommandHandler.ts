@@ -10,12 +10,12 @@ import { Cuti } from '../../infrastructure/orm/Cuti';
 @injectable()
 export class DeleteCutiCommandHandler implements ICommandHandler<DeleteCutiCommand> {
   commandToHandle: string = DeleteCutiCommand.name;
-  _db: DataSource;
+  // _db: DataSource;
 
   constructor(
-    // @inject(TYPES.ApiServer) private readonly _db: AppDataSource
+    @inject(TYPES.DB) private readonly _db: DataSource
   ) {
-    this._db = AppDataSource.initialize();
+    // this._db = AppDataSource.initialize();
   }
 
   async handle(command: DeleteCutiCommand) {

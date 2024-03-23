@@ -1,7 +1,7 @@
 import "reflect-metadata"
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
 
-@Entity()
+@Entity("cuti")
 export class Cuti {
 
     @PrimaryGeneratedColumn({unsigned: true})

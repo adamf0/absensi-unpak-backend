@@ -11,33 +11,33 @@ export class AppDataSource {
             type: "mysql",
             host: process.env.db_host,
             port: 3306,
-            username: process.env.username,
-            password: process.env.password,
-            database: process.env.database,
+            username: process.env.db_username,
+            password: process.env.db_password,
+            database: process.env.db_database,
             entities: [Absen,Cuti],
             logging: false,
-            synchronize: true,
+            synchronize: false,
         })
         con
             .initialize()
             .then(() => {
-                // console.log("Data Source has been initialized!")
+                console.log("Data Source has been initialized!")
             })
             .catch((err) => {
-                // console.error("Error during Data Source initialization:", err)
+                console.error("Error during Data Source initialization:", err)
             })
         
         return con;
     }
     public static async initialize2(){
         try {
-            const con = createConnection({ // Menggunakan createConnection untuk membuat koneksi
+            const con = await createConnection({ // Menggunakan createConnection untuk membuat koneksi
                 type: 'mysql',
                 host: process.env.db_host,
                 port: 3306,
-                username: process.env.username,
-                password: process.env.password,
-                database: process.env.database,
+                username: process.env.db_username,
+                password: process.env.db_password,
+                database: process.env.db_database,
                 entities: [Absen, Cuti],
                 logging: false,
                 synchronize: false,
