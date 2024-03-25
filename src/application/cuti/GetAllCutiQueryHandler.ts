@@ -5,6 +5,7 @@ import { GetAllCutiQuery } from './GetAllCutiQuery';
 import { DataSource } from 'typeorm';
 import { AppDataSource } from '../../infrastructure/config/mysql';
 import { Cuti } from '../../infrastructure/orm/Cuti';
+import { count } from 'console';
 
 @injectable()
 export class GetAllCutiQueryHandler implements IQueryHandler<GetAllCutiQuery, any> {
@@ -18,6 +19,12 @@ export class GetAllCutiQueryHandler implements IQueryHandler<GetAllCutiQuery, an
   }
 
   async execute(query: GetAllCutiQuery) {
-    return await this._db.getRepository(Cuti).find()
+    return await this._db.getRepository(Cuti).findAndCount(
+        {
+            // where: { name: Like('%' + keyword + '%') }, order: { name: "DESC" },
+            take: query.take,
+            skip: query.skip
+        }
+    )
   }
 }

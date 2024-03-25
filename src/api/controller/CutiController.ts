@@ -5,7 +5,7 @@ import { TYPES } from '../../infrastructure/types';
 import { ICommandBus } from '../../infrastructure/abstractions/messaging/ICommandBus';
 import { IQueryBus } from '../../infrastructure/abstractions/messaging/IQueryBus';
 import { ILog } from '../../infrastructure/abstractions/messaging/ILog';
-import { EntityMetadataNotFoundError, QueryFailedError } from 'typeorm';
+import { EntityMetadataNotFoundError, IsNull, QueryFailedError } from 'typeorm';
 import { CreateCutiCommand } from '../../application/cuti/CreateCutiCommand';
 import { UpdateCutiCommand } from '../../application/cuti/UpdateCutiCommand';
 import { DeleteCutiCommand } from '../../application/cuti/DeleteCutiCommand';
@@ -23,15 +23,46 @@ export class CutiController {
   @httpGet('/')
   async index(@request() req: Request, @response() res: Response) {
       try {
-        const listCuti = await this._queryBus.execute(
-            new GetAllCutiQuery()
+        const page = parseInt(String(req.query?.page??"1"));
+        const pageSize = parseInt(String(req.query?.pageSize??"10"));
+        const startIndex = (page - 1) * pageSize;
+        const endIndex = page * pageSize;
+
+        const [data,count] = await this._queryBus.execute(
+            new GetAllCutiQuery(pageSize,startIndex)
         );
+        const totalPage=Math.ceil(count/pageSize);
+        const nextPage=(page+1 > totalPage) ? null :page+1;
+        const prevPage=(page-1 < 1) || (totalPage<page) ? null :page-1;
 
         res.status(200).json({
             status: 200,
             message: null,
-            data: listCuti,
-            list: null,
+            data: null,
+            list: {
+                totalData: count,
+                startIndex: startIndex,
+                endIndex: endIndex,
+
+                totalPage: totalPage,
+                pageSize: pageSize,
+                prevPage: prevPage,
+                // {
+                //     number: prevPage??null,
+                //     link: prevPage!==null? req.protocol + "://" + req.get('host') + req.originalUrl.replace(/page=\d+/, `page=${prevPage}`):null
+                // },
+                currentPage: page,
+                // {
+                //     number: page,
+                //     link: req.protocol + "://" + req.get('host') + req.originalUrl
+                // },
+                nextPage: nextPage,
+                // {
+                //     number: nextPage??null,
+                //     link: nextPage!==null? req.protocol + "://" + req.get('host') + req.originalUrl.replace(/page=\d+/, `page=${nextPage}`):null
+                // },
+                data:data
+            },
             validation: [],
             log: [],
         });
