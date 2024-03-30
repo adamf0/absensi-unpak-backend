@@ -2,7 +2,7 @@ import "reflect-metadata";
 import dotenv from 'dotenv';
 import helmet from "helmet";
 import cors from 'cors';
-import { Application } from "express";
+import { Application, Response } from "express";
 import { AppDataSource } from "./src/infrastructure/config/mysql";
 import { json, urlencoded } from "body-parser";
 import { InversifyExpressServer } from "inversify-express-utils";
@@ -29,11 +29,15 @@ import { GetCutiQueryHandler } from "./src/application/cuti/GetCutiQueryHandler"
 import { GetAllCutiQueryHandler } from "./src/application/cuti/GetAllCutiQueryHandler";
 import { CutiController } from "./src/api/controller/CutiController";
 import { Absen } from "./src/infrastructure/orm/Absen";
-import { Cuti } from "./src/infrastructure/orm/Cuti";
 import { DataSource } from "typeorm";
 import { GetAllAbsenByNIDNYearMonthQueryHandler } from "./src/application/calendar/GetAllAbsenByNIDNYearMonthQueryHandler";
 import { CalendarController } from "./src/api/controller/CalendarController";
 import { GetAllCutiByNIDNYearMonthQueryHandler } from "./src/application/cuti/GetAllCutiByNIDNYearMonthQueryHandler";
+
+import { EntityMetadataNotFoundError, QueryFailedError } from 'typeorm';
+import * as Yup from "yup";
+import { Errors } from './src/infrastructure/abstractions/Errors';
+import { Logger } from "./src/infrastructure/config/logger";
 var cron = require('node-cron');
 
 dotenv.config();
@@ -74,12 +78,39 @@ server.setConfig((app: Application) => {
     //     });
     // });
 });
-// server.setErrorConfig((app: Application) => {
-//     app.use((err, req, res, next) => {
-//         // console.error(err.stack);
-//         res.status(500).send('Something broke!');
-//     });
-// });
+server.setErrorConfig((app: Application) => {
+    const _log: ILog = new Log()
+
+    app.use((error:any, req, res:Response, next) => {
+        console.error(error.constructor);
+        let errorMessage = "error server";
+        let logMessage = process.env.deploy == "dev" ? error : "error server";
+        
+        if (error instanceof QueryFailedError || error instanceof EntityMetadataNotFoundError) {
+            if (process.env.deploy != "dev") {
+                _log.saveLog(error.message || error.message);
+            }
+        } else if (error instanceof Yup.ValidationError) {
+            const invalid_request: Errors = {};
+            error.inner.forEach((err) => {
+                if (err.path) {
+                    invalid_request[err.path] = err.message;
+                }
+            });
+            errorMessage = "Invalid request";
+            logMessage = JSON.stringify(invalid_request);
+        }
+
+        res.status(500).json({
+            status: 500,
+            message: errorMessage,
+            data: null,
+            list: null,
+            validation: [],
+            log: logMessage,
+        });
+    });
+});
 
 container.bind<AppDataSource>(TYPES.DB).toConstantValue(AppDataSource.initialize());
 container.bind<ILog>(TYPES.Log).to(Log);

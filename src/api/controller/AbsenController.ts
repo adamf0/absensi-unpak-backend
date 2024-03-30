@@ -5,121 +5,63 @@ import { TYPES } from '../../infrastructure/types';
 import { ICommandBus } from '../../infrastructure/abstractions/messaging/ICommandBus';
 import { IQueryBus } from '../../infrastructure/abstractions/messaging/IQueryBus';
 import { absenKeluarSchema, absenMasukSchema } from '../../domain/validation/absenSchema';
-import { InvalidRequest } from '../../domain/entity/InvalidRequest';
 import { CreateAbsenMasukCommand } from '../../application/absen/CreateAbsenMasukCommand';
 import { CreateAbsenKeluarCommand } from '../../application/absen/CreateAbsenKeluarCommand';
 import { GetAbsenQuery } from '../../application/absen/GetAbsenQuery';
 import { ILog } from '../../infrastructure/abstractions/messaging/ILog';
-import { QueryFailedError } from 'typeorm';
 import { distance } from '../../infrastructure/utility/Utility';
 
 @controller('/absen')
 export class AbsenController {
-  constructor(
-    @inject(TYPES.Log) private readonly _log: ILog,
-    @inject(TYPES.CommandBus) private readonly _commandBus: ICommandBus,
-    @inject(TYPES.QueryBus) private readonly _queryBus: IQueryBus
-  ) {}
+    constructor(
+        @inject(TYPES.Log) private readonly _log: ILog,
+        @inject(TYPES.CommandBus) private readonly _commandBus: ICommandBus,
+        @inject(TYPES.QueryBus) private readonly _queryBus: IQueryBus
+    ) { }
 
-  @httpPost('/check')
-  async check(@request() req: Request, @response() res: Response) {
-      try {
+    @httpPost('/check')
+    async check(@request() req: Request, @response() res: Response) {
         let absensi = null;
-        let message = null;
-        const query: GetAbsenQuery = new GetAbsenQuery(req.params.nidn,req.params.tanggal);
+        const query: GetAbsenQuery = new GetAbsenQuery(req.params.nidn, req.params.tanggal);
         absensi = await this._queryBus.execute(query);
-        message = absensi==null? "data tidak ditemukan":"data ditemukan"
 
         res.status(200).json({
             status: 200,
-            message: message,
+            message: absensi == null ? "data tidak ditemukan" : "data ditemukan",
             data: absensi,
             list: null,
             validation: [],
             log: [],
         });
-    } catch (error) {
-        console.error(error.constructor);
-        if (error instanceof QueryFailedError) {
-            if(process.env.deploy != "dev"){
-                this._log.saveLog(error.driverError);
-            }
-            res.status(500).json({
-                status: 500,
-                message: "error server",
-                data: null,
-                list: null,
-                validation: [],
-                log: process.env.deploy == "dev" ? error.driverError : "error server",
-            });
-        } else {
-            if(error.name.IsNull){
-                if(process.env.deploy != "dev"){
-                    this._log.saveLog(error.message);
-                }
-                res.status(500).json({
-                    status: 500,
-                    message: error.message,
-                    data: null,
-                    list: null,
-                    validation: [],
-                    log: [],
-                });
-            } else{
-                if(process.env.deploy != "dev"){
-                    this._log.saveLog(JSON.stringify(error?.message??[]));
-                }
-                res.status(500).json({
-                    status: 500,
-                    message: null,
-                    data: null,
-                    list: null,
-                    validation: error?.message??[],
-                    log: [],
-                });
-            }
-        }
     }
-  }
 
-  @httpPost('/:tipe')
-  async absen(@request() req: Request, @response() res: Response) {
-      try {
+    @httpPost('/:tipe')
+    async absen(@request() req: Request, @response() res: Response) {
         let absensi = null;
         let message = null;
         if (req.params.tipe == "masuk") {
-            //masih error jika tidak ada input kalau form-data
-            const validation = absenMasukSchema.safeParse(req.body);
-            console.log(validation.success)
-            if (validation.success == false) {
-                throw new InvalidRequest("absenMasukSchema",validation.error.formErrors.fieldErrors);
-            } else {
-                const jarak = distance(req.body.lat, req.body.long, -6.599398, 106.812367, "Meter");
-                if(!(jarak>=0 && jarak<=150)){
-                    throw new Error(`jaran anda dengan unpak sejauh ${jarak} meter, itu berada di luar lokasi radius absensi (150 meter)`)
-                }
-                absensi = await this._commandBus.send(
-                  new CreateAbsenMasukCommand(req.body.nidn, req.body.tanggal, req.body.absen_masuk)
-                );
-                message = "berhasil absen masuk";
+            await absenMasukSchema.validate(req.body, { abortEarly: false });
+
+            const jarak = distance(req.body.lat, req.body.long, -6.599398, 106.812367, "Meter");
+            if (!(jarak >= 0 && jarak <= 150)) {
+                throw new Error(`jaran anda dengan unpak sejauh ${jarak} meter, itu berada di luar lokasi radius absensi (150 meter)`)
             }
+            absensi = await this._commandBus.send(
+                new CreateAbsenMasukCommand(req.body.nidn, req.body.tanggal, req.body.absen_masuk)
+            );
+            message = "berhasil absen masuk";
         } else if (req.params.tipe == "keluar") {
-            //masih error jika tidak ada input kalau form-data
-            const validation = absenKeluarSchema.safeParse(req.body);
-            console.log(validation.success)
-            if (validation.success == false) {
-                throw new InvalidRequest("absenKeluarSchema",validation.error.formErrors.fieldErrors);
+            await absenKeluarSchema.validate(req.body, { abortEarly: false });
+
+            const query: GetAbsenQuery = new GetAbsenQuery(req.params.nidn, req.params.tanggal);
+            const absen = await this._queryBus.execute(query);
+            if (message = absen.absen_keluar == null) {
+                absensi = await this._commandBus.send(
+                    new CreateAbsenKeluarCommand(absen.nidn, absen.tanggal, req.body.absen_keluar)
+                );
+                message = "berhasil absen keluar";
             } else {
-                const query: GetAbsenQuery = new GetAbsenQuery(req.params.nidn,req.params.tanggal);
-                const absen = await this._queryBus.execute(query);
-                if(message = absen.absen_keluar == null){
-                    absensi = await this._commandBus.send(
-                        new CreateAbsenKeluarCommand(absen.nidn, absen.tanggal, req.body.absen_keluar)
-                    );
-                    message = "berhasil absen keluar";   
-                } else{
-                    message = "sudah absen keluar";
-                }
+                message = "sudah absen keluar";
             }
         } else {
             throw new Error("invalid command")
@@ -133,47 +75,5 @@ export class AbsenController {
             validation: [],
             log: [],
         });
-    } catch (error) {
-        console.error(error.constructor);
-        if (error instanceof QueryFailedError) {
-            if(process.env.deploy != "dev"){
-                this._log.saveLog(error.driverError);
-            }
-            res.status(500).json({
-                status: 500,
-                message: "error server",
-                data: null,
-                list: null,
-                validation: [],
-                log: process.env.deploy == "dev" ? error.driverError : "error server",
-            });
-        } else {
-            if(error.name.IsNull){
-                if(process.env.deploy != "dev"){
-                    this._log.saveLog(error.message);
-                }
-                res.status(500).json({
-                    status: 500,
-                    message: error.message,
-                    data: null,
-                    list: null,
-                    validation: [],
-                    log: [],
-                });
-            } else{
-                if(process.env.deploy != "dev"){
-                    this._log.saveLog(JSON.stringify(error?.message??[]));
-                }
-                res.status(500).json({
-                    status: 500,
-                    message: null,
-                    data: null,
-                    list: null,
-                    validation: error?.message??[],
-                    log: [],
-                });
-            }
-        }
     }
-  }
 }

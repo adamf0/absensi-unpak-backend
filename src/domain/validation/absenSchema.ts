@@ -1,15 +1,15 @@
-import { z } from 'zod';
+import * as Yup from "yup";
 
-export const absenMasukSchema = z.object({
-  nidn: z.string(),
-  tanggal: z.string().pipe(z.coerce.date()),
-  absen_masuk: z.string(),
-  lat: z.string(),
-  long: z.string(),
-});
+export const absenMasukSchema = Yup.object({
+    nidn: Yup.string().required("this is required"),
+    tanggal: Yup.date().required("this is required"),
+    absen_masuk: Yup.string().required("this is required"),
+    lat: Yup.number().required("this is required").min(-90).max(90),
+    long: Yup.number().required("this is required").min(-180).max(180),
+})
 
-export const absenKeluarSchema = z.object({
-    nidn: z.string(),
-    tanggal: z.string().pipe(z.coerce.date()),
-    absen_keluar: z.string(),
-});
+export const absenKeluarSchema = Yup.object({
+    nidn: Yup.string().required("this is required"),
+    tanggal: Yup.date().required("this is required"),
+    absen_keluar: Yup.date().required("this is required"),
+})
