@@ -22,7 +22,7 @@ export class CreateAbsenKeluarCommandHandler implements ICommandHandler<CreateAb
         nidn: command.nidn,
         tanggal: command.tanggal,
     })
-    absen.absen_keluar = command.absen_keluar;
+    absen.absen_keluar = command.tanggal + " " + command.absen_keluar;
     await this._db.getRepository(Absen).save(absen);
 
     // const application: Application = new Application(

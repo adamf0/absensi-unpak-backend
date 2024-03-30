@@ -16,7 +16,7 @@ export class AppDataSource {
             database: process.env.db_database,
             entities: [Absen,Cuti],
             logging: false,
-            synchronize: false,
+            synchronize: true,
         })
         con
             .initialize()

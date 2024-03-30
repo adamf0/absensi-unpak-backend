@@ -21,7 +21,7 @@ export class CreateAbsenMasukCommandHandler implements ICommandHandler<CreateAbs
     const absen = new Absen();
     absen.nidn = command.nidn;
     absen.tanggal = command.tanggal;
-    absen.absen_masuk = command.absen_masuk;
+    absen.absen_masuk = command.tanggal + " " +command.absen_masuk;
     await this._db.getRepository(Absen).save(absen);
 
     // const application: Application = new Application(
