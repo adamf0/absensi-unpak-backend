@@ -28,7 +28,7 @@ export class AbsenController {
         let message = null;
         const query: GetAbsenQuery = new GetAbsenQuery(req.params.nidn,req.params.tanggal);
         absensi = await this._queryBus.execute(query);
-        message = "data ditemukan"
+        message = absensi==null? "data tidak ditemukan":"data ditemukan"
 
         res.status(200).json({
             status: 200,
@@ -96,7 +96,7 @@ export class AbsenController {
             } else {
                 const jarak = distance(req.body.lat, req.body.long, -6.599398, 106.812367, "Meter");
                 if(!(jarak>=0 && jarak<=150)){
-                    throw new Error("jaran anda dengan unpak sejauh "+jarak+" meter, itu berada di luar lokasi radius absensi (150 meter)")
+                    throw new Error(`jaran anda dengan unpak sejauh ${jarak} meter, itu berada di luar lokasi radius absensi (150 meter)`)
                 }
                 absensi = await this._commandBus.send(
                   new CreateAbsenMasukCommand(req.body.nidn, req.body.tanggal, req.body.absen_masuk)

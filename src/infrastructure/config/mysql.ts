@@ -15,7 +15,7 @@ export class AppDataSource {
             password: process.env.db_password,
             database: process.env.db_database,
             entities: [Absen,Cuti],
-            logging: false,
+            logging: true,
             synchronize: true,
         })
         con
@@ -39,7 +39,7 @@ export class AppDataSource {
                 password: process.env.db_password,
                 database: process.env.db_database,
                 entities: [Absen, Cuti],
-                logging: false,
+                logging: true,
                 synchronize: false,
             });
             console.log('Data Source has been initialized!');

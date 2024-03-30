@@ -31,6 +31,9 @@ import { CutiController } from "./src/api/controller/CutiController";
 import { Absen } from "./src/infrastructure/orm/Absen";
 import { Cuti } from "./src/infrastructure/orm/Cuti";
 import { DataSource } from "typeorm";
+import { GetAllAbsenByNIDNYearMonthQueryHandler } from "./src/application/calendar/GetAllAbsenByNIDNYearMonthQueryHandler";
+import { CalendarController } from "./src/api/controller/CalendarController";
+import { GetAllCutiByNIDNYearMonthQueryHandler } from "./src/application/cuti/GetAllCutiByNIDNYearMonthQueryHandler";
 var cron = require('node-cron');
 
 dotenv.config();
@@ -86,6 +89,7 @@ container.bind<IQueryBus<IQuery>>(TYPES.QueryBus).toConstantValue(new QueryBus()
 container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(CreateAbsenMasukCommandHandler);
 container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(CreateAbsenKeluarCommandHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAbsenQueryHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllAbsenByNIDNYearMonthQueryHandler);
 //</absen>
 //<cuti>
 container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(CreateCutiCommandHandler);
@@ -93,7 +97,11 @@ container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(UpdateCutiCom
 container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(DeleteCutiCommandHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetCutiQueryHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllCutiQueryHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllCutiByNIDNYearMonthQueryHandler);
 //</cuti>
+//<calendar>
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllAbsenByNIDNYearMonthQueryHandler);
+//</calendar>
 
 const commandBus = container.get<ICommandBus>(TYPES.CommandBus);
 container.getAll<ICommandHandler<ICommand>>(TYPES.CommandHandler).forEach((handler: ICommandHandler<ICommand>) => {
@@ -109,6 +117,7 @@ const apiServer = server.build();
 container.bind<Application>(TYPES.ApiServer).toConstantValue(apiServer);
 container.bind<AbsenController>(TYPES.Controller).to(AbsenController);
 container.bind<CutiController>(TYPES.Controller).to(CutiController);
+container.bind<CalendarController>(TYPES.Controller).to(CalendarController);
 
 const api: Application = container.get<Application>(TYPES.ApiServer);
 api.listen(port, async () =>
