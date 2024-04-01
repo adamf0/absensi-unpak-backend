@@ -42,7 +42,7 @@ export class CalendarController {
         }, []), ...list_absen.map(item => ({
             id: item.id,
             tanggal: new Date(item.tanggal).toISOString().split('T')[0],
-            type: "absen",
+            type: "masuk",
             absen_masuk: item.absen_masuk,
             absen_keluar: item.absen_keluar
         }))

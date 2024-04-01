@@ -11,5 +11,5 @@ export const absenMasukSchema = Yup.object({
 export const absenKeluarSchema = Yup.object({
     nidn: Yup.string().required("this is required"),
     tanggal: Yup.date().required("this is required"),
-    absen_keluar: Yup.date().required("this is required"),
+    absen_keluar: Yup.string().required("this is required"),
 })

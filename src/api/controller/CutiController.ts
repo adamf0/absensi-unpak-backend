@@ -97,11 +97,11 @@ export class CutiController {
         });
     }
 
-    @httpPost('/update/:id')
+    @httpPost('/update')
     async update(@request() req: Request, @response() res: Response) {
         console.log(req.body)
         await cutiUpdateSchema.validate({
-            "id": req.params.id,
+            "id": req.body.id,
             "nidn": req.body.nidn,
             "tanggal_pengajuan": req.body.tanggal_pengajuan,
             "lama_cuti": req.body.lama_cuti,
@@ -111,7 +111,7 @@ export class CutiController {
 
         const cuti = await this._commandBus.send(
             new UpdateCutiCommand(
-                parseInt(req.params.id),
+                parseInt(req.body.id),
                 req.body.nidn,
                 req.body.tanggal_pengajuan,
                 req.body.lama_cuti,
@@ -130,7 +130,7 @@ export class CutiController {
         });
     }
 
-    @httpPost('/delete/:id')
+    @httpGet('/delete/:id')
     async delete(@request() req: Request, @response() res: Response) {
         const cuti = await this._commandBus.send(
             new DeleteCutiCommand(parseInt(req.params.id))
