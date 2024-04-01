@@ -5,3 +5,4 @@ https://medium.com/@domagojk/patterns-for-designing-flexible-architecture-in-nod
 error: EADDRINUSE, Address already in use
 cmd> taskkill /F /IM node.exe
 cmd> npx kill-port 3000
+serve dist -l 81
