@@ -3,6 +3,7 @@ import { Connection, DataSource, createConnection } from "typeorm"
 import { injectable } from "inversify"
 import { Absen } from "../orm/Absen";
 import { Cuti } from "../orm/Cuti";
+import { JenisCuti } from "../orm/JenisCuti";
 
 @injectable()
 export class AppDataSource {
@@ -14,7 +15,7 @@ export class AppDataSource {
             username: process.env.db_username,
             password: process.env.db_password,
             database: process.env.db_database,
-            entities: [Absen,Cuti],
+            entities: [Absen,Cuti,JenisCuti],
             logging: true,
             synchronize: false,
         })

@@ -37,7 +37,9 @@ import { GetAllCutiByNIDNYearMonthQueryHandler } from "./src/application/cuti/Ge
 import { EntityMetadataNotFoundError, QueryFailedError } from 'typeorm';
 import * as Yup from "yup";
 import { Errors } from './src/infrastructure/abstractions/Errors';
-import { Logger } from "./src/infrastructure/config/logger";
+// import { Logger } from "./src/infrastructure/config/logger";
+import { GetAllJenisCutiQueryHandler } from "./src/application/jenis_cuti/GetAllJenisCutiQueryHandler";
+import { JenisCutiController } from "./src/api/controller/JenisCutiController";
 var cron = require('node-cron');
 
 dotenv.config();
@@ -130,6 +132,9 @@ container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetCutiQueryHandler
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllCutiQueryHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllCutiByNIDNYearMonthQueryHandler);
 //</cuti>
+//<jenis_cuti>
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllJenisCutiQueryHandler);
+//</jenis_cuti>
 //<calendar>
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllAbsenByNIDNYearMonthQueryHandler);
 //</calendar>
@@ -148,6 +153,7 @@ const apiServer = server.build();
 container.bind<Application>(TYPES.ApiServer).toConstantValue(apiServer);
 container.bind<AbsenController>(TYPES.Controller).to(AbsenController);
 container.bind<CutiController>(TYPES.Controller).to(CutiController);
+container.bind<JenisCutiController>(TYPES.Controller).to(JenisCutiController);
 container.bind<CalendarController>(TYPES.Controller).to(CalendarController);
 
 const api: Application = container.get<Application>(TYPES.ApiServer);
