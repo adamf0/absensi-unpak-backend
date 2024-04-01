@@ -18,7 +18,7 @@ export class GetAbsenQueryHandler implements IQueryHandler<GetAbsenQuery, any> {
   }
 
   async execute(query: GetAbsenQuery) {
-    return await this._db.getRepository(Absen).findOneByOrFail({
+    return await this._db.getRepository(Absen).findOneBy({
         nidn: query.nidn,
         tanggal: query.tanggal,
     })

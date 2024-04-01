@@ -19,7 +19,7 @@ export class AbsenController {
         @inject(TYPES.QueryBus) private readonly _queryBus: IQueryBus
     ) { }
 
-    @httpPost('/check')
+    @httpGet('/check/:nidn/:tanggal')
     async check(@request() req: Request, @response() res: Response) {
         let absensi = null;
         const query: GetAbsenQuery = new GetAbsenQuery(req.params.nidn, req.params.tanggal);
@@ -43,7 +43,7 @@ export class AbsenController {
             await absenMasukSchema.validate(req.body, { abortEarly: false });
 
             const jarak = distance(req.body.lat, req.body.long, -6.599398, 106.812367, "Meter");
-            if (!(jarak >= 0 && jarak <= 150)) {
+            if (!(jarak >= 0 && jarak <= 800)) {
                 throw new Error(`jaran anda dengan unpak sejauh ${jarak} meter, itu berada di luar lokasi radius absensi (150 meter)`)
             }
             absensi = await this._commandBus.send(

@@ -29,7 +29,7 @@ import { GetCutiQueryHandler } from "./src/application/cuti/GetCutiQueryHandler"
 import { GetAllCutiQueryHandler } from "./src/application/cuti/GetAllCutiQueryHandler";
 import { CutiController } from "./src/api/controller/CutiController";
 import { Absen } from "./src/infrastructure/orm/Absen";
-import { DataSource } from "typeorm";
+import { DataSource, EntityNotFoundError } from "typeorm";
 import { GetAllAbsenByNIDNYearMonthQueryHandler } from "./src/application/calendar/GetAllAbsenByNIDNYearMonthQueryHandler";
 import { CalendarController } from "./src/api/controller/CalendarController";
 import { GetAllCutiByNIDNYearMonthQueryHandler } from "./src/application/cuti/GetAllCutiByNIDNYearMonthQueryHandler";
@@ -84,9 +84,9 @@ server.setErrorConfig((app: Application) => {
     app.use((error:any, req, res:Response, next) => {
         console.error(error.constructor);
         let errorMessage = "error server";
-        let logMessage = process.env.deploy == "dev" ? error : "error server";
+        let logMessage = process.env.deploy == "dev" ? error.stack : "error server";
         
-        if (error instanceof QueryFailedError || error instanceof EntityMetadataNotFoundError) {
+        if (error instanceof QueryFailedError || error instanceof EntityMetadataNotFoundError || error instanceof EntityNotFoundError) {
             if (process.env.deploy != "dev") {
                 _log.saveLog(error.message || error.message);
             }

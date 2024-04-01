@@ -1,0 +1,6 @@
+[
+  {
+    "timestamp": 1711933097899,
+    "error": "Could not find any entity of type \"Absen\" matching: {\n    \"nidn\": \"065117251\",\n    \"tanggal\": \"2024-04-01\"\n}"
+  }
+]
