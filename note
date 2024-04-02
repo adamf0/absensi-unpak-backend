@@ -6,3 +6,16 @@ error: EADDRINUSE, Address already in use
 cmd> taskkill /F /IM node.exe
 cmd> npx kill-port 3000
 serve dist -l 81
+
+let state = new MappingStateContext();
+            state.addState(new RuleCheckRegistryCuti(req.params.nidn,year_month,req.body.tanggal,this._commandBus,this._queryBus),new ResultCheckRegistryCuti()) //inject construct from rule
+            state.addState(new RuleCheckRegistryIzin(req.params.nidn,year_month,req.body.tanggal,this._commandBus,this._queryBus),new ResultCheckRegistryIzin()) //inject construct from rule
+            state.addState(new RuleCheckRadius(req.body.lat, req.body.long, -6.599398, 106.812367, "Meter"),new ResultCheckRadius()) //inject construct from rule
+            await state.handleState().then((result:InvalidRequest|null)=>{
+                console.log(result.message,result["message"])
+                if(result instanceof InvalidRequest){
+                    throw new Error(result.message)
+                } else{
+                    message = result;
+                }
+            })
