@@ -18,8 +18,13 @@ export class GetCutiQueryHandler implements IQueryHandler<GetCutiQuery, any> {
   }
 
   async execute(query: GetCutiQuery) {
-    return await this._db.getRepository(Cuti).findOneByOrFail({
-        id: query.id
+    return await this._db.getRepository(Cuti).findOneOrFail({
+        where: {
+          id: query.id
+        },
+        relations: {
+          JenisCuti: true,
+        },
     })
   }
 }

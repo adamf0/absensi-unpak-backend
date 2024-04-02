@@ -22,7 +22,10 @@ export class GetAllCutiByNIDNYearMonthQueryHandler implements IQueryHandler<GetA
       where:{
         nidn: query.nidn,
         tanggal_pengajuan: Like(`%${query.year_month}%`),
-      }
+      },
+      relations: {
+        JenisCuti: true,
+      },
     })
   }
 }

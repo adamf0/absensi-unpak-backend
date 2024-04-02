@@ -26,7 +26,7 @@ export class UpdateCutiCommandHandler implements ICommandHandler<UpdateCutiComma
     cuti.tanggal_pengajuan = command.tanggal_pengajuan;
     cuti.lama_cuti = command.lama_cuti;
     cuti.tujuan = command.tujuan;
-    cuti.jenis_cuti = command.jenis_cuti;
+    cuti.jenis_cuti = parseInt(command.jenis_cuti);
 
     await this._db.getRepository(Cuti).save(cuti);
     // const application: Application = new Application(

@@ -53,15 +53,16 @@ export class AbsenController {
         } else if (req.params.tipe == "keluar") {
             await absenKeluarSchema.validate(req.body, { abortEarly: false });
 
-            const query: GetAbsenQuery = new GetAbsenQuery(req.params.nidn, req.params.tanggal);
+            const query: GetAbsenQuery = new GetAbsenQuery(req.body.nidn, req.body.tanggal);
             const absen = await this._queryBus.execute(query);
-            if (message = absen.absen_keluar == null) {
+            if (absen.absen_keluar == null) {
                 absensi = await this._commandBus.send(
                     new CreateAbsenKeluarCommand(absen.nidn, absen.tanggal, req.body.absen_keluar)
                 );
                 message = "berhasil absen keluar";
             } else {
-                message = "sudah absen keluar";
+                message = "sudah absen";
+                absensi = absen
             }
         } else {
             throw new Error("invalid command")

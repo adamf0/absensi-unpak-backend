@@ -20,11 +20,14 @@ export class GetAllCutiQueryHandler implements IQueryHandler<GetAllCutiQuery, an
 
   async execute(query: GetAllCutiQuery) {
     return await this._db.getRepository(Cuti).findAndCount(
-        {
-            // where: { name: Like('%' + keyword + '%') }, order: { name: "DESC" },
-            take: query.take,
-            skip: query.skip
-        }
+      {
+        // where: { name: Like('%' + keyword + '%') }, order: { name: "DESC" },
+        take: query.take,
+        skip: query.skip,
+        relations: {
+          JenisCuti: true,
+        },
+      },
     )
   }
 }

@@ -1,5 +1,6 @@
 import "reflect-metadata"
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, Index, OneToOne, JoinColumn } from "typeorm"
+import { JenisCuti } from "./JenisCuti"
 
 @Entity("cuti")
 export class Cuti {
@@ -19,6 +20,14 @@ export class Cuti {
     @Column("text")
     tujuan: string
 
-    @Column()
-    jenis_cuti: string
+    @Column("int",{unsigned: true})
+    jenis_cuti: number
+
+    @OneToOne(() => JenisCuti, jenisCuti => jenisCuti.cuti, {
+        eager: true,
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    })
+    @JoinColumn({ name: "jenis_cuti" })
+    JenisCuti: JenisCuti
 }
