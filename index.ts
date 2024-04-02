@@ -108,6 +108,9 @@ server.setErrorConfig((app: Application) => {
             });
             errorMessage = "Invalid request";
             logMessage = JSON.stringify(invalid_request);
+        } if(error instanceof Error){
+            errorMessage = error.message;
+            logMessage = null
         }
 
         res.status(500).json({
