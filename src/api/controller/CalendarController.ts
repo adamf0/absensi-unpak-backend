@@ -8,6 +8,7 @@ import { ILog } from '../../infrastructure/abstractions/messaging/ILog';
 import { QueryFailedError } from 'typeorm';
 import { GetAllAbsenByNIDNYearMonthQuery } from '../../application/calendar/GetAllAbsenByNIDNYearMonthQuery';
 import { GetAllCutiByNIDNYearMonthQuery } from '../../application/cuti/GetAllCutiByNIDNYearMonthQuery';
+import { GetAllIzinByNIDNYearMonthQuery } from '../../application/izin/GetAllIzinByNIDNYearMonthQuery';
 
 @controller('/calendar')
 export class CalendarController {
@@ -25,6 +26,10 @@ export class CalendarController {
 
         const list_cuti = await this._queryBus.execute(
             new GetAllCutiByNIDNYearMonthQuery(req.params.nidn, req.params.year_month)
+        );
+
+        const list_izin = await this._queryBus.execute(
+            new GetAllIzinByNIDNYearMonthQuery(req.params.nidn, req.params.year_month)
         );
 
         const result = [...list_cuti.reduce((acc, item) => {
@@ -45,6 +50,11 @@ export class CalendarController {
             type: "masuk",
             absen_masuk: item.absen_masuk,
             absen_keluar: item.absen_keluar
+        })), ...list_izin.map(item => ({
+            id: item.id,
+            tanggal: new Date(item.tanggal_pengajuan).toISOString().split('T')[0],
+            type: "izin",
+            tujuan: item.tujuan,
         }))
         ];
 

@@ -4,6 +4,7 @@ import { injectable } from "inversify"
 import { Absen } from "../orm/Absen";
 import { Cuti } from "../orm/Cuti";
 import { JenisCuti } from "../orm/JenisCuti";
+import { Izin } from "../orm/Izin";
 
 @injectable()
 export class AppDataSource {
@@ -15,9 +16,9 @@ export class AppDataSource {
             username: process.env.db_username,
             password: process.env.db_password,
             database: process.env.db_database,
-            entities: [Absen,Cuti,JenisCuti],
+            entities: [Absen,Cuti,JenisCuti,Izin],
             logging: true,
-            synchronize: false,
+            synchronize: true,
         })
         con
             .initialize()
@@ -39,7 +40,7 @@ export class AppDataSource {
                 username: process.env.db_username,
                 password: process.env.db_password,
                 database: process.env.db_database,
-                entities: [Absen, Cuti],
+                entities: [Absen,Cuti,JenisCuti,Izin],
                 logging: true,
                 synchronize: false,
             });

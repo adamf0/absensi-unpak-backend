@@ -40,6 +40,13 @@ import { Errors } from './src/infrastructure/abstractions/Errors';
 // import { Logger } from "./src/infrastructure/config/logger";
 import { GetAllJenisCutiQueryHandler } from "./src/application/jenis_cuti/GetAllJenisCutiQueryHandler";
 import { JenisCutiController } from "./src/api/controller/JenisCutiController";
+import { IzinController } from "./src/api/controller/IzinController";
+import { CreateIzinCommandHandler } from "./src/application/izin/CreateIzinCommandHandler";
+import { DeleteIzinCommandHandler } from "./src/application/izin/DeleteIzinCommandHandler";
+import { GetAllIzinByNIDNYearMonthQueryHandler } from "./src/application/izin/GetAllIzinByNIDNYearMonthQueryHandler";
+import { GetAllIzinQueryHandler } from "./src/application/izin/GetAllIzinQueryHandler";
+import { GetIzinQueryHandler } from "./src/application/izin/GetIzinQueryHandler";
+import { UpdateIzinCommandHandler } from "./src/application/izin/UpdateIzinCommandHandler";
 var cron = require('node-cron');
 
 dotenv.config();
@@ -135,6 +142,14 @@ container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllCutiByNIDNYea
 //<jenis_cuti>
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllJenisCutiQueryHandler);
 //</jenis_cuti>
+//<izin>
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(CreateIzinCommandHandler);
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(UpdateIzinCommandHandler);
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(DeleteIzinCommandHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetIzinQueryHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllIzinQueryHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllIzinByNIDNYearMonthQueryHandler);
+//</izin>
 //<calendar>
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllAbsenByNIDNYearMonthQueryHandler);
 //</calendar>
@@ -155,6 +170,7 @@ container.bind<AbsenController>(TYPES.Controller).to(AbsenController);
 container.bind<CutiController>(TYPES.Controller).to(CutiController);
 container.bind<JenisCutiController>(TYPES.Controller).to(JenisCutiController);
 container.bind<CalendarController>(TYPES.Controller).to(CalendarController);
+container.bind<IzinController>(TYPES.Controller).to(IzinController);
 
 const api: Application = container.get<Application>(TYPES.ApiServer);
 api.listen(port, async () =>
