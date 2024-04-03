@@ -28,6 +28,6 @@ export class Cuti {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
     })
-    @JoinColumn({ name: "jenis_cuti" })
+    @JoinColumn()
     JenisCuti: JenisCuti
 }

@@ -2,7 +2,7 @@ import "reflect-metadata"
 import { Entity, PrimaryGeneratedColumn, Column, Index } from "typeorm"
 
 @Entity("izin")
-@Index(['nidn', 'tanggal_pengajuan'], { unique: true }) //index ganda
+@Index(['nidn', 'tanggal_pengajuan']) //index ganda
 export class Izin {
 
     @PrimaryGeneratedColumn({unsigned: true})
