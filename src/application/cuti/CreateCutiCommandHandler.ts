@@ -3,7 +3,7 @@ import { ICommandHandler } from '../../infrastructure/abstractions/messaging/ICo
 import { CreateCutiCommand } from './CreateCutiCommand';
 import { AppDataSource } from '../../infrastructure/config/mysql';
 import { TYPES } from '../../infrastructure/types';
-import { DataSource } from 'typeorm';
+import { DataSource, getConnection } from 'typeorm';
 import { Cuti } from '../../infrastructure/orm/Cuti';
 
 @injectable()
@@ -12,12 +12,13 @@ export class CreateCutiCommandHandler implements ICommandHandler<CreateCutiComma
   // _db: DataSource;
 
   constructor(
-    @inject(TYPES.DB) private readonly _db: DataSource
+    // @inject(TYPES.DB) private readonly _db: DataSource
   ) {
     // this._db = AppDataSource.initialize();
   }
 
   async handle(command: CreateCutiCommand) {
+    const _db = await getConnection("default");
     let cuti  = new Cuti();
     cuti.nidn = command.nidn;
     cuti.tanggal_pengajuan = command.tanggal_pengajuan;
@@ -25,7 +26,7 @@ export class CreateCutiCommandHandler implements ICommandHandler<CreateCutiComma
     cuti.tujuan = command.tujuan;
     cuti.jenis_cuti = parseInt(command.jenis_cuti);
 
-    await this._db.getRepository(Cuti).save(cuti);
+    await _db.getRepository(Cuti).save(cuti);
     // const application: Application = new Application(
     //   command.guid,
     //   command.jobId,

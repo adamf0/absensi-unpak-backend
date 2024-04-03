@@ -4,7 +4,7 @@ import { UpdateCutiCommand } from './UpdateCutiCommand';
 import { Absen } from '../../infrastructure/orm/Absen';
 import { AppDataSource } from '../../infrastructure/config/mysql';
 import { TYPES } from '../../infrastructure/types';
-import { DataSource } from 'typeorm';
+import { DataSource, getConnection } from 'typeorm';
 import { Cuti } from '../../infrastructure/orm/Cuti';
 
 @injectable()
@@ -13,13 +13,14 @@ export class UpdateCutiCommandHandler implements ICommandHandler<UpdateCutiComma
   // _db: DataSource;
 
   constructor(
-    @inject(TYPES.DB) private readonly _db: DataSource
+    // @inject(TYPES.DB) private readonly _db: DataSource
   ) {
     // this._db = AppDataSource.initialize();
   }
 
   async handle(command: UpdateCutiCommand) {
-    let cuti = await this._db.getRepository(Cuti).findOneByOrFail({
+    const _db = await getConnection("default");
+    let cuti = await _db.getRepository(Cuti).findOneByOrFail({
       id: command.id,
     })
     cuti.nidn = command.nidn;
@@ -28,7 +29,7 @@ export class UpdateCutiCommandHandler implements ICommandHandler<UpdateCutiComma
     cuti.tujuan = command.tujuan;
     cuti.jenis_cuti = parseInt(command.jenis_cuti);
 
-    await this._db.getRepository(Cuti).save(cuti);
+    await _db.getRepository(Cuti).save(cuti);
     // const application: Application = new Application(
     //   command.guid,
     //   command.jobId,

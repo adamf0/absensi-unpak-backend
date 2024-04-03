@@ -8,7 +8,8 @@ const TYPES = {
     AppDataSource: Symbol('AppDataSource'),
     Controller: Symbol('Controller'),
     Log: Symbol('Log'),
-    DB: Symbol('Log'),
+    DB: Symbol('DB'),
+    SIMAK: Symbol('SIMAK'),
 };
 
 export { TYPES };

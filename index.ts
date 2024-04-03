@@ -29,7 +29,7 @@ import { GetCutiQueryHandler } from "./src/application/cuti/GetCutiQueryHandler"
 import { GetAllCutiQueryHandler } from "./src/application/cuti/GetAllCutiQueryHandler";
 import { CutiController } from "./src/api/controller/CutiController";
 import { Absen } from "./src/infrastructure/orm/Absen";
-import { DataSource, EntityNotFoundError } from "typeorm";
+import { Connection, DataSource, EntityNotFoundError, createConnections, getConnection } from "typeorm";
 import { GetAllAbsenByNIDNYearMonthQueryHandler } from "./src/application/calendar/GetAllAbsenByNIDNYearMonthQueryHandler";
 import { CalendarController } from "./src/api/controller/CalendarController";
 import { GetAllCutiByNIDNYearMonthQueryHandler } from "./src/application/cuti/GetAllCutiByNIDNYearMonthQueryHandler";
@@ -47,6 +47,12 @@ import { GetAllIzinByNIDNYearMonthQueryHandler } from "./src/application/izin/Ge
 import { GetAllIzinQueryHandler } from "./src/application/izin/GetAllIzinQueryHandler";
 import { GetIzinQueryHandler } from "./src/application/izin/GetIzinQueryHandler";
 import { UpdateIzinCommandHandler } from "./src/application/izin/UpdateIzinCommandHandler";
+import { AuthController } from "./src/api/controller/AuthController";
+import { createConnection } from "net";
+import { Dosen } from "./src/infrastructure/orm/Dosen";
+import { Izin } from "./src/infrastructure/orm/Izin";
+import { Cuti } from "./src/infrastructure/orm/Cuti";
+import { JenisCuti } from "./src/infrastructure/orm/JenisCuti";
 var cron = require('node-cron');
 
 dotenv.config();
@@ -110,7 +116,7 @@ server.setErrorConfig((app: Application) => {
             logMessage = JSON.stringify(invalid_request);
         } if(error instanceof Error){
             errorMessage = error.message;
-            logMessage = null
+            logMessage = error.stack
         }
 
         res.status(500).json({
@@ -124,7 +130,48 @@ server.setErrorConfig((app: Application) => {
     });
 });
 
-container.bind<AppDataSource>(TYPES.DB).toConstantValue(AppDataSource.initialize());
+async function connect(){
+    await createConnections([
+        {
+            name: "default",
+            type: "mysql",
+            host: process.env.db_host,
+            port: 3306,
+            username: process.env.db_username,
+            password: process.env.db_password,
+            database: process.env.db_database,
+            entities: [Absen,Cuti,JenisCuti,Izin],
+            logging: true,
+            synchronize: true,
+        },
+        {
+            name: "cron",
+            type: "mysql",
+            host: process.env.db_host,
+            port: 3306,
+            username: process.env.db_username,
+            password: process.env.db_password,
+            database: process.env.db_database,
+            entities: [Absen,Cuti,JenisCuti,Izin],
+            logging: true,
+            synchronize: true,
+        },
+        {
+            name: "simak",
+            type: "mysql",
+            host: "localhost",
+            port: 3306,
+            username: "root",
+            password: "",
+            database: "unpak_simak",
+            entities: [Dosen],
+            synchronize: false
+        },
+    ])
+}
+connect()
+// container.bind<AppDataSource>(TYPES.DB).toConstantValue(AppDataSource.initialize());
+// container.bind<AppDataSource>(TYPES.SIMAK).toConstantValue(AppDataSource.simak());
 container.bind<ILog>(TYPES.Log).to(Log);
 container.bind<ICommandBus>(TYPES.CommandBus).toConstantValue(new CommandBus());
 container.bind<IQueryBus<IQuery>>(TYPES.QueryBus).toConstantValue(new QueryBus());
@@ -174,24 +221,25 @@ container.bind<CutiController>(TYPES.Controller).to(CutiController);
 container.bind<JenisCutiController>(TYPES.Controller).to(JenisCutiController);
 container.bind<CalendarController>(TYPES.Controller).to(CalendarController);
 container.bind<IzinController>(TYPES.Controller).to(IzinController);
+container.bind<AuthController>(TYPES.Controller).to(AuthController);
 
 const api: Application = container.get<Application>(TYPES.ApiServer);
 api.listen(port, async () =>
     console.log('The application is running in %s:%s', process.env.base_url, port)
 );
-cron.schedule('50,55 23 * * *', async () => {
+cron.schedule('* * * * *', async () => {
     console.log('Running a job absen keluar');
     try {
-        AppDataSource.initialize2().then(async (db:DataSource)=>{
-            const result = await db.createQueryBuilder()
-            .update(Absen)
-            .set({ absen_keluar: () => 'CURRENT_TIMESTAMP' })
-            .where('tanggal = CURDATE() and absen_keluar is null')
-            .execute();
+        const _db = await getConnection("cron");
+        if(_db.isInitialized){
+            const result = await _db.createQueryBuilder()
+                .update(Absen)
+                .set({ absen_keluar: () => 'CURRENT_TIMESTAMP' })
+                .where('tanggal = CURDATE() and absen_keluar is null')
+                .execute();
             console.log(result);
-
-            db.destroy()
-        })
+        }
+        // db.destroy()
     } catch (error) {
         console.error('Error occurred:', error);
     }

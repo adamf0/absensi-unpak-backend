@@ -4,7 +4,7 @@ import { CreateAbsenMasukCommand } from './CreateAbsenMasukCommand';
 import { Absen } from '../../infrastructure/orm/Absen';
 import { AppDataSource } from '../../infrastructure/config/mysql';
 import { TYPES } from '../../infrastructure/types';
-import { DataSource } from 'typeorm';
+import { DataSource, getConnection } from 'typeorm';
 
 @injectable()
 export class CreateAbsenMasukCommandHandler implements ICommandHandler<CreateAbsenMasukCommand> {
@@ -12,17 +12,18 @@ export class CreateAbsenMasukCommandHandler implements ICommandHandler<CreateAbs
   // _db: DataSource;
 
   constructor(
-    @inject(TYPES.DB) private readonly _db: DataSource
+    // @inject(TYPES.DB) private readonly _db: DataSource
   ) {
     // this._db = AppDataSource.initialize();
   }
 
   async handle(command: CreateAbsenMasukCommand) {
+    const _db = await getConnection("default");
     const absen = new Absen();
     absen.nidn = command.nidn;
     absen.tanggal = command.tanggal;
     absen.absen_masuk = command.tanggal + " " +command.absen_masuk;
-    await this._db.getRepository(Absen).save(absen);
+    await _db.getRepository(Absen).save(absen);
 
     // const application: Application = new Application(
     //   command.guid,

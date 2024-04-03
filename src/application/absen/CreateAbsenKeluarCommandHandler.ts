@@ -4,7 +4,7 @@ import { CreateAbsenKeluarCommand } from './CreateAbsenKeluarCommand';
 import { Absen } from '../../infrastructure/orm/Absen';
 import { AppDataSource } from '../../infrastructure/config/mysql';
 import { TYPES } from '../../infrastructure/types';
-import { DataSource } from 'typeorm';
+import { DataSource, getConnection } from 'typeorm';
 
 @injectable()
 export class CreateAbsenKeluarCommandHandler implements ICommandHandler<CreateAbsenKeluarCommand> {
@@ -12,18 +12,19 @@ export class CreateAbsenKeluarCommandHandler implements ICommandHandler<CreateAb
   // _db: DataSource;
 
   constructor(
-    @inject(TYPES.DB) private readonly _db: DataSource
+    // @inject(TYPES.DB) private readonly _db: DataSource
   ) {
     // this._db = AppDataSource.initialize();
   }
 
   async handle(command: CreateAbsenKeluarCommand) {
-    const absen = await this._db.getRepository(Absen).findOneBy({
+    const _db = await getConnection("default");
+    const absen = await _db.getRepository(Absen).findOneBy({
         nidn: command.nidn,
         tanggal: command.tanggal,
     })
     absen.absen_keluar = command.tanggal + " " + command.absen_keluar;
-    await this._db.getRepository(Absen).save(absen);
+    await _db.getRepository(Absen).save(absen);
 
     // const application: Application = new Application(
     //   command.guid,

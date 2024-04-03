@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify';
 import { ICommandHandler } from '../../infrastructure/abstractions/messaging/ICommandHandler';
 import { DeleteIzinCommand } from './DeleteIzinCommand';
 import { TYPES } from '../../infrastructure/types';
-import { DataSource } from 'typeorm';
+import { DataSource, getConnection } from 'typeorm';
 import { Izin } from '../../infrastructure/orm/Izin';
 
 @injectable()
@@ -11,13 +11,14 @@ export class DeleteIzinCommandHandler implements ICommandHandler<DeleteIzinComma
   // _db: DataSource;
 
   constructor(
-    @inject(TYPES.DB) private readonly _db: DataSource
+    // @inject(TYPES.DB) private readonly _db: DataSource
   ) {
     // this._db = AppDataSource.initialize();
   }
 
   async handle(command: DeleteIzinCommand) {
-    await this._db.getRepository(Izin).delete(command.id)
+    const _db = await getConnection("default");
+    await _db.getRepository(Izin).delete(command.id)
 
     // const application: Application = new Application(
     //   command.guid,

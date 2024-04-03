@@ -5,6 +5,7 @@ import { Absen } from "../orm/Absen";
 import { Cuti } from "../orm/Cuti";
 import { JenisCuti } from "../orm/JenisCuti";
 import { Izin } from "../orm/Izin";
+import { Dosen } from "../orm/Dosen";
 
 @injectable()
 export class AppDataSource {
@@ -46,6 +47,27 @@ export class AppDataSource {
             });
             console.log('Data Source has been initialized!');
             return con;
+        } catch (err) {
+            console.error('Error during Data Source initialization:', err);
+            throw err; // Anda mungkin ingin melempar kembali kesalahan ini agar dapat ditangani di tempat lain jika diperlukan
+        }
+    }
+    public static async simak(){
+        try {
+            const connection1 = await createConnection({
+                name: "simak",
+                type: "mysql",
+                host: "localhost",
+                port: 3306,
+                username: "root",
+                password: "",
+                database: "unpak_simak",
+                entities: [Dosen],
+                synchronize: false,
+            });
+
+            console.log('Data Source has been initialized!');
+            return connection1;
         } catch (err) {
             console.error('Error during Data Source initialization:', err);
             throw err; // Anda mungkin ingin melempar kembali kesalahan ini agar dapat ditangani di tempat lain jika diperlukan
