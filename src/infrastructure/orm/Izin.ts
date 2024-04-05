@@ -1,5 +1,6 @@
 import "reflect-metadata"
 import { Entity, PrimaryGeneratedColumn, Column, Index } from "typeorm"
+import { StatusIzin } from "../../domain/enum/StatusIzin"
 
 @Entity("izin")
 @Index(['nidn', 'tanggal_pengajuan']) //index ganda
@@ -17,6 +18,10 @@ export class Izin {
     @Column("text")
     tujuan: string
 
-    @Column({length: 200, type: "varchar"})
+    @Column({
+        type: "enum",
+        enum: StatusIzin,
+        default: StatusIzin.Default,
+    })
     status: string
 }

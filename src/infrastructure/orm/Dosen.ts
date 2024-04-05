@@ -1,5 +1,6 @@
 import "reflect-metadata"
-import { Entity, Column, Index, PrimaryColumn } from "typeorm"
+import { Entity, Column, PrimaryColumn, OneToMany} from "typeorm"
+import { UserSimak } from "./UserSimak"
 
 @Entity("m_dosen")
 export class Dosen {
@@ -19,4 +20,7 @@ export class Dosen {
     @Column({length: 50, type: "varchar"})
     nama_dosen: string
 
+    @OneToMany(() => UserSimak, UserSimak => UserSimak.userid,{
+    })
+    cuti: UserSimak[]
 }

@@ -3,7 +3,6 @@ import dotenv from 'dotenv';
 import helmet from "helmet";
 import cors from 'cors';
 import express, { Application, Response } from "express";
-import { AppDataSource } from "./src/infrastructure/config/mysql";
 import { json, urlencoded } from "body-parser";
 import { InversifyExpressServer } from "inversify-express-utils";
 import { Container } from "inversify";
@@ -29,7 +28,7 @@ import { GetCutiQueryHandler } from "./src/application/cuti/GetCutiQueryHandler"
 import { GetAllCutiQueryHandler } from "./src/application/cuti/GetAllCutiQueryHandler";
 import { CutiController } from "./src/api/controller/CutiController";
 import { Absen } from "./src/infrastructure/orm/Absen";
-import { Connection, DataSource, EntityNotFoundError, createConnections, getConnection } from "typeorm";
+import { EntityNotFoundError, createConnections, getConnection } from "typeorm";
 import { GetAllAbsenByNIDNYearMonthQueryHandler } from "./src/application/calendar/GetAllAbsenByNIDNYearMonthQueryHandler";
 import { CalendarController } from "./src/api/controller/CalendarController";
 import { GetAllCutiByNIDNYearMonthQueryHandler } from "./src/application/cuti/GetAllCutiByNIDNYearMonthQueryHandler";
@@ -48,11 +47,18 @@ import { GetAllIzinQueryHandler } from "./src/application/izin/GetAllIzinQueryHa
 import { GetIzinQueryHandler } from "./src/application/izin/GetIzinQueryHandler";
 import { UpdateIzinCommandHandler } from "./src/application/izin/UpdateIzinCommandHandler";
 import { AuthController } from "./src/api/controller/AuthController";
-import path from 'path';
 import { Dosen } from "./src/infrastructure/orm/Dosen";
 import { Izin } from "./src/infrastructure/orm/Izin";
 import { Cuti } from "./src/infrastructure/orm/Cuti";
 import { JenisCuti } from "./src/infrastructure/orm/JenisCuti";
+import { User } from "./src/infrastructure/orm/User";
+import { UserController } from "./src/api/controller/UserController";
+import { CreateUserCommandHandler } from "./src/application/user/CreateUserCommandHandler";
+import { DeleteUserCommandHandler } from "./src/application/user/DeleteUserCommandHandler";
+import { GetAllUserQueryHandler } from "./src/application/user/GetAllUserQueryHandler";
+import { GetUserQueryHandler } from "./src/application/user/GetUserQueryHandler";
+import { UpdateUserCommandHandler } from "./src/application/user/UpdateUserCommandHandler";
+import { UserSimak } from "./src/infrastructure/orm/UserSimak";
 var cron = require('node-cron');
 
 dotenv.config();
@@ -73,15 +79,6 @@ server.setConfig((app: Application) => {
     app.use(helmet());
     app.use(cors(corsOptions));
     app.use('/static', express.static('public')) //http://localhost:8000/static/uploads/1712290962115-dokumen.jpg
-    // app.get('/readfile', (req, res) => {
-    //     fs.readFile('file.txt', 'utf8', (err, data) => {
-    //         if (err) {
-    //             res.status(500).send('Error reading file');
-    //             return;
-    //         }
-    //         res.send(data);
-    //     });
-    // });
 });
 server.setErrorConfig((app: Application) => {
     const _log: ILog = new Log()
@@ -130,7 +127,7 @@ async function connect(){
             username: process.env.db_username,
             password: process.env.db_password,
             database: process.env.db_database,
-            entities: [Absen,Cuti,JenisCuti,Izin],
+            entities: [Absen,Cuti,JenisCuti,Izin,User],
             logging: true,
             synchronize: true,
         },
@@ -142,7 +139,7 @@ async function connect(){
             username: process.env.db_username,
             password: process.env.db_password,
             database: process.env.db_database,
-            entities: [Absen,Cuti,JenisCuti,Izin],
+            entities: [Absen,Cuti,JenisCuti,Izin,User],
             logging: true,
             synchronize: true,
         },
@@ -154,7 +151,7 @@ async function connect(){
             username: "root",
             password: "",
             database: "unpak_simak",
-            entities: [Dosen],
+            entities: [Dosen,UserSimak],
             synchronize: false
         },
     ])
@@ -179,6 +176,13 @@ container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetCutiQueryHandler
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllCutiQueryHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllCutiByNIDNYearMonthQueryHandler);
 //</cuti>
+//<user>
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(CreateUserCommandHandler);
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(UpdateUserCommandHandler);
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(DeleteUserCommandHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetUserQueryHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllUserQueryHandler);
+//</user>
 //<jenis_cuti>
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllJenisCutiQueryHandler);
 //</jenis_cuti>
@@ -211,6 +215,7 @@ container.bind<CutiController>(TYPES.Controller).to(CutiController);
 container.bind<JenisCutiController>(TYPES.Controller).to(JenisCutiController);
 container.bind<CalendarController>(TYPES.Controller).to(CalendarController);
 container.bind<IzinController>(TYPES.Controller).to(IzinController);
+container.bind<UserController>(TYPES.Controller).to(UserController);
 container.bind<AuthController>(TYPES.Controller).to(AuthController);
 
 const api: Application = container.get<Application>(TYPES.ApiServer);

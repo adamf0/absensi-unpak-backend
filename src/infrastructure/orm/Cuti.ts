@@ -1,6 +1,7 @@
 import "reflect-metadata"
 import { Entity, PrimaryGeneratedColumn, Column, Index, OneToOne, JoinColumn } from "typeorm"
 import { JenisCuti } from "./JenisCuti"
+import { StatusCuti } from "../../domain/enum/StatusCuti"
 
 @Entity("cuti")
 export class Cuti {
@@ -20,13 +21,17 @@ export class Cuti {
     @Column("text")
     tujuan: string
 
-    @Column("int",{unsigned: true})
+    @Column("int",{unsigned: true, unique: false})
     jenis_cuti: number
 
     @Column({type: "text", nullable: true})
     dokumen: string
 
-    @Column({length: 200, type: "varchar"})
+    @Column({
+        type: "enum",
+        enum: StatusCuti,
+        default: StatusCuti.Default,
+    })
     status: string
 
     @OneToOne(() => JenisCuti, jenisCuti => jenisCuti.cuti, {
@@ -34,6 +39,6 @@ export class Cuti {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
     })
-    @JoinColumn()
+    @JoinColumn({ name: "jenis_cuti" })
     JenisCuti: JenisCuti
 }

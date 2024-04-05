@@ -5,8 +5,7 @@ import { TYPES } from '../../infrastructure/types';
 import { ICommandBus } from '../../infrastructure/abstractions/messaging/ICommandBus';
 import { IQueryBus } from '../../infrastructure/abstractions/messaging/IQueryBus';
 import { ILog } from '../../infrastructure/abstractions/messaging/ILog';
-import { Dosen } from '../../infrastructure/orm/Dosen';
-import { getConnection } from 'typeorm';
+import { LoginLocal } from '../../application/login/LoginLocal';
 
 @controller('/auth')
 export class AuthController {
@@ -19,17 +18,18 @@ export class AuthController {
 
     @httpPost('/login')
     async check(@request() req: Request, @response() res: Response) {
-
-        const con = await getConnection("simak");
-        const dosen = await con.getRepository(Dosen)
-        .createQueryBuilder("dosen")
-        .where("dosen.NIDN = :nidn", { nidn: req.body.username }) // pastikan req.body.nidn telah didefinisikan sebelumnya
-        .getOne();
+        // const con = await getConnection("simak");
+        // const dosen = await con.getRepository(Dosen)
+        // .createQueryBuilder("dosen")
+        // .where("dosen.NIDN = :nidn", { nidn: req.body.username }) // pastikan req.body.nidn telah didefinisikan sebelumnya
+        // .getOne();
+        const local = new LoginLocal();
+        const pengguna = local.login(req.body.username,req.body.password)
 
         res.status(200).json({
             status: 200,
             message: "",
-            data: dosen,
+            data: pengguna,
             list: null,
             validation: [],
             log: [],
