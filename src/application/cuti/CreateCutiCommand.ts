@@ -6,6 +6,7 @@ export class CreateCutiCommand extends Command {
     public lama_cuti: number;
     public tujuan: string;
     public jenis_cuti: string;
+    public dokumen: string|null;
     
     constructor(
       nidn:string,
@@ -13,6 +14,7 @@ export class CreateCutiCommand extends Command {
       lama_cuti:number,
       tujuan:string,
       jenis_cuti:string,
+      dokumen:string|null,
     ) {
       super();
       this.nidn = nidn
@@ -20,5 +22,6 @@ export class CreateCutiCommand extends Command {
       this.lama_cuti = lama_cuti
       this.tujuan = tujuan
       this.jenis_cuti = jenis_cuti
+      this.dokumen = dokumen
     }
   }

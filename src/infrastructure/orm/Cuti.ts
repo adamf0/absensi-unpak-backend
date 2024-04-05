@@ -23,6 +23,12 @@ export class Cuti {
     @Column("int",{unsigned: true})
     jenis_cuti: number
 
+    @Column({type: "text", nullable: true})
+    dokumen: string
+
+    @Column({length: 200, type: "varchar"})
+    status: string
+
     @OneToOne(() => JenisCuti, jenisCuti => jenisCuti.cuti, {
         eager: true,
         onDelete: "CASCADE",

@@ -25,6 +25,8 @@ export class CreateCutiCommandHandler implements ICommandHandler<CreateCutiComma
     cuti.lama_cuti = command.lama_cuti;
     cuti.tujuan = command.tujuan;
     cuti.jenis_cuti = parseInt(command.jenis_cuti);
+    if(command.dokumen !== null)
+      cuti.dokumen = command.dokumen
 
     await _db.getRepository(Cuti).save(cuti);
     // const application: Application = new Application(

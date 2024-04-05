@@ -21,15 +21,15 @@ export class AuthController {
     async check(@request() req: Request, @response() res: Response) {
 
         const con = await getConnection("simak");
-        const x = await con.getRepository(Dosen)
+        const dosen = await con.getRepository(Dosen)
         .createQueryBuilder("dosen")
-        .where("dosen.NIDN = :nidn", { nidn: req.body.nidn }) // pastikan req.body.nidn telah didefinisikan sebelumnya
+        .where("dosen.NIDN = :nidn", { nidn: req.body.username }) // pastikan req.body.nidn telah didefinisikan sebelumnya
         .getOne();
 
         res.status(200).json({
             status: 200,
             message: "",
-            data: x,
+            data: dosen,
             list: null,
             validation: [],
             log: [],

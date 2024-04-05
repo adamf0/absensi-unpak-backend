@@ -2,7 +2,7 @@ import "reflect-metadata";
 import dotenv from 'dotenv';
 import helmet from "helmet";
 import cors from 'cors';
-import { Application, Response } from "express";
+import express, { Application, Response } from "express";
 import { AppDataSource } from "./src/infrastructure/config/mysql";
 import { json, urlencoded } from "body-parser";
 import { InversifyExpressServer } from "inversify-express-utils";
@@ -48,7 +48,7 @@ import { GetAllIzinQueryHandler } from "./src/application/izin/GetAllIzinQueryHa
 import { GetIzinQueryHandler } from "./src/application/izin/GetIzinQueryHandler";
 import { UpdateIzinCommandHandler } from "./src/application/izin/UpdateIzinCommandHandler";
 import { AuthController } from "./src/api/controller/AuthController";
-import { createConnection } from "net";
+import path from 'path';
 import { Dosen } from "./src/infrastructure/orm/Dosen";
 import { Izin } from "./src/infrastructure/orm/Izin";
 import { Cuti } from "./src/infrastructure/orm/Cuti";
@@ -72,17 +72,7 @@ server.setConfig((app: Application) => {
     app.use(json());
     app.use(helmet());
     app.use(cors(corsOptions));
-    // const storage = multer.diskStorage({
-    //     destination: function (req, file, cb) {
-    //         cb(null, 'public/uploads')
-    //     },
-    //     filename: function (req, file, cb) {
-    //         cb(null, file.fieldname + '-' + Date.now())
-    //     }
-    // });
-    // const upload = multer({ storage: storage });
-    // app.use(upload.single('file'));
-    // app.use('/public', express.static(path.join(__dirname, 'public')));
+    app.use('/static', express.static('public')) //http://localhost:8000/static/uploads/1712290962115-dokumen.jpg
     // app.get('/readfile', (req, res) => {
     //     fs.readFile('file.txt', 'utf8', (err, data) => {
     //         if (err) {

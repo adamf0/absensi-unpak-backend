@@ -11,6 +11,7 @@ import { DeleteCutiCommand } from '../../application/cuti/DeleteCutiCommand';
 import { GetAllCutiQuery } from '../../application/cuti/GetAllCutiQuery';
 import { GetCutiQuery } from '../../application/cuti/GetCutiQuery';
 import { cutiCreateSchema, cutiUpdateSchema } from '../../domain/validation/cutiSchema';
+import { handleUploadFileDokumen } from '../../infrastructure/port/IO';
 
 @controller('/cuti')
 export class CutiController {
@@ -76,6 +77,10 @@ export class CutiController {
 
     @httpPost('/create')
     async store(@request() req: Request, @response() res: Response) {
+        const uploadResult = await handleUploadFileDokumen(req, res);
+        // const uploadedFile: UploadedFile = uploadResult.file;
+        // const { body } = uploadResult;
+
         await cutiCreateSchema.validate(req.body, { abortEarly: false });
         const cuti = await this._commandBus.send(
             new CreateCutiCommand(
@@ -84,6 +89,7 @@ export class CutiController {
                 req.body.lama_cuti,
                 req.body.tujuan,
                 req.body.jenis_cuti,
+                uploadResult?.file?.filename
             )
         );
 
@@ -99,7 +105,10 @@ export class CutiController {
 
     @httpPost('/update')
     async update(@request() req: Request, @response() res: Response) {
-        console.log(req.body)
+        const uploadResult = await handleUploadFileDokumen(req, res);
+        // const uploadedFile: UploadedFile = uploadResult.file;
+        // const { body } = uploadResult;
+
         await cutiUpdateSchema.validate({
             "id": req.body.id,
             "nidn": req.body.nidn,
@@ -117,6 +126,7 @@ export class CutiController {
                 req.body.lama_cuti,
                 req.body.tujuan,
                 req.body.jenis_cuti,
+                uploadResult?.file?.filename
             )
         );
 

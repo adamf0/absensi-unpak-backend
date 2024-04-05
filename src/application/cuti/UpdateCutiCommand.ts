@@ -7,6 +7,7 @@ export class UpdateCutiCommand extends Command {
     public lama_cuti: number;
     public tujuan: string;
     public jenis_cuti: string;
+    public dokumen: string|null;
     
     constructor(
       id:number,
@@ -15,6 +16,7 @@ export class UpdateCutiCommand extends Command {
       lama_cuti:number,
       tujuan:string,
       jenis_cuti:string,
+      dokumen:string|null,
     ) {
       super();
       this.id = id
@@ -23,5 +25,6 @@ export class UpdateCutiCommand extends Command {
       this.lama_cuti = lama_cuti
       this.tujuan = tujuan
       this.jenis_cuti = jenis_cuti
+      this.dokumen = dokumen
     }
   }
