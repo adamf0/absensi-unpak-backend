@@ -16,4 +16,7 @@ export class Izin {
 
     @Column("text")
     tujuan: string
+
+    @Column({length: 200, type: "varchar"})
+    status: string
 }
