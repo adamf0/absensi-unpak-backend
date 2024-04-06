@@ -19,6 +19,7 @@ export class CreateUserCommandHandler implements ICommandHandler<CreateUserComma
   async handle(command: CreateUserCommand) {
     const _db = await getConnection("default");
     let user  = new User();
+    user.nama = command.nama;
     user.username = command.username;
     user.password = command.password;
     user.level = command.level;

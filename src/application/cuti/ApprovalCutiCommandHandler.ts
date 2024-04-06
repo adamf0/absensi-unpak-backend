@@ -1,13 +1,14 @@
 import { inject, injectable } from 'inversify';
 import { ICommandHandler } from '../../infrastructure/abstractions/messaging/ICommandHandler';
-import { UpdateUserCommand } from './UpdateUserCommand';
+import { ApprovalCutiCommand } from './ApprovalCutiCommand';
+import { AppDataSource } from '../../infrastructure/config/mysql';
 import { TYPES } from '../../infrastructure/types';
 import { DataSource, getConnection } from 'typeorm';
-import { User } from '../../infrastructure/orm/User';
+import { Cuti } from '../../infrastructure/orm/Cuti';
 
 @injectable()
-export class UpdateUserCommandHandler implements ICommandHandler<UpdateUserCommand> {
-  commandToHandle: string = UpdateUserCommand.name;
+export class ApprovalCutiCommandHandler implements ICommandHandler<ApprovalCutiCommand> {
+  commandToHandle: string = ApprovalCutiCommand.name;
   // _db: DataSource;
 
   constructor(
@@ -16,17 +17,18 @@ export class UpdateUserCommandHandler implements ICommandHandler<UpdateUserComma
     // this._db = AppDataSource.initialize();
   }
 
-  async handle(command: UpdateUserCommand) {
+  async handle(command: ApprovalCutiCommand) {
     const _db = await getConnection("default");
-    let user = await _db.getRepository(User).findOneByOrFail({
-      id: command.id,
+    let cuti = await _db.getRepository(Cuti).findOneOrFail({
+        where: {
+          id: command.id
+        },
+        relations: {},
     })
-    user.nama = command.nama;
-    user.username = command.username;
-    user.password = command.password;
-    user.level = command.level;
+    cuti.status = command.type
+    cuti.catatan = command.note
 
-    await _db.getRepository(User).save(user);
+    await _db.getRepository(Cuti).save(cuti);
     // const application: Application = new Application(
     //   command.guid,
     //   command.jobId,
@@ -36,6 +38,6 @@ export class UpdateUserCommandHandler implements ICommandHandler<UpdateUserComma
     //   command.currentPosition
     // ); es
 
-    return user;
+    return cuti;
   }
 }

@@ -16,3 +16,8 @@ export const cutiUpdateSchema = Yup.object({
     tujuan: Yup.string().required("this is required"),
     jenis_cuti: Yup.number().required("this is required"),
 })
+
+export const cutiApprovalSchema = Yup.object({
+    id: Yup.string().required("this is required"),
+    type: Yup.string().required("this is required"),
+})

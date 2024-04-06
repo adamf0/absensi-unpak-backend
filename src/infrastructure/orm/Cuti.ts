@@ -34,6 +34,9 @@ export class Cuti {
     })
     status: string
 
+    @Column({type: "text", nullable: true})
+    catatan: string
+
     @OneToOne(() => JenisCuti, jenisCuti => jenisCuti.cuti, {
         eager: true,
         onDelete: "CASCADE",

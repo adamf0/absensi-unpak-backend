@@ -10,8 +10,10 @@ import { UpdateCutiCommand } from '../../application/cuti/UpdateCutiCommand';
 import { DeleteCutiCommand } from '../../application/cuti/DeleteCutiCommand';
 import { GetAllCutiQuery } from '../../application/cuti/GetAllCutiQuery';
 import { GetCutiQuery } from '../../application/cuti/GetCutiQuery';
-import { cutiCreateSchema, cutiUpdateSchema } from '../../domain/validation/cutiSchema';
+import { cutiApprovalSchema, cutiCreateSchema, cutiUpdateSchema } from '../../domain/validation/cutiSchema';
 import { handleUploadFileDokumen } from '../../infrastructure/port/IO';
+import { ApprovalCutiCommand } from '../../application/cuti/ApprovalCutiCommand';
+import { StatusCuti } from '../../domain/enum/StatusCuti';
 
 @controller('/cuti')
 export class CutiController {
@@ -149,6 +151,32 @@ export class CutiController {
         res.status(200).json({
             status: 200,
             message: "berhasil hapus pengajuan cuti",
+            data: cuti,
+            list: null,
+            validation: [],
+            log: [],
+        });
+    }
+
+    @httpPost('/approval')
+    async approval(@request() req: Request, @response() res: Response) {
+        await cutiApprovalSchema.validate({
+            "id": req.body.id,
+            "type": req.body.type,
+            "note": req.body.note,
+        }, { abortEarly: false });
+
+        const cuti = await this._commandBus.send(
+            new ApprovalCutiCommand(
+                parseInt(req.body.id),
+                req.body.type as StatusCuti,
+                req.body.note,
+            )
+        );
+
+        res.status(200).json({
+            status: 200,
+            message: `berhasil ${req.body.type} cuti`,
             data: cuti,
             list: null,
             validation: [],

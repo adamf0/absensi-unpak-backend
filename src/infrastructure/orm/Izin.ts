@@ -24,4 +24,7 @@ export class Izin {
         default: StatusIzin.Default,
     })
     status: string
+
+    @Column({type: "text", nullable: true})
+    catatan: string
 }

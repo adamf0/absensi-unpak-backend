@@ -6,7 +6,7 @@ import { Dosen } from "./Dosen"
 @Entity("user")
 export class UserSimak {
     
-    @PrimaryColumn({length: 50, type: "varchar"})
+    @PrimaryColumn({length: 50, type: "varchar", unique: false})
     userid : string
 
     @Column({length: 50, type: "varchar"})
@@ -23,10 +23,10 @@ export class UserSimak {
         enum: LevelUser,
         default: LevelUser.MAHASISWA,
     })
-    status: string
+    level: string
 
 
-    @OneToOne(() => Dosen, Dosen => Dosen.NIDN, {
+    @OneToOne(() => Dosen, Dosen => Dosen.UserSimak, {
         eager: true,
         onDelete: "CASCADE",
         onUpdate: "CASCADE",

@@ -12,3 +12,8 @@ export const izinUpdateSchema = Yup.object({
     tanggal_pengajuan: Yup.date().required("this is required"),
     tujuan: Yup.string().required("this is required"),
 })
+
+export const izinApprovalSchema = Yup.object({
+    id: Yup.string().required("this is required"),
+    type: Yup.string().required("this is required"),
+})

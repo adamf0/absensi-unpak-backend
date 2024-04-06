@@ -10,7 +10,9 @@ import { UpdateIzinCommand } from '../../application/izin/UpdateIzinCommand';
 import { DeleteIzinCommand } from '../../application/izin/DeleteIzinCommand';
 import { GetAllIzinQuery } from '../../application/izin/GetAllIzinQuery';
 import { GetIzinQuery } from '../../application/izin/GetIzinQuery';
-import { izinCreateSchema, izinUpdateSchema } from '../../domain/validation/izinSchema';
+import { izinApprovalSchema, izinCreateSchema, izinUpdateSchema } from '../../domain/validation/izinSchema';
+import { StatusIzin } from '../../domain/enum/StatusIzin';
+import { ApprovalIzinCommand } from '../../application/izin/ApprovalIzinCommand';
 
 @controller('/izin')
 export class IzinController {
@@ -112,6 +114,32 @@ export class IzinController {
         res.status(200).json({
             status: 200,
             message: "berhasil update data izin",
+            data: izin,
+            list: null,
+            validation: [],
+            log: [],
+        });
+    }
+
+    @httpPost('/approval')
+    async approval(@request() req: Request, @response() res: Response) {
+        await izinApprovalSchema.validate({
+            "id": req.body.id,
+            "type": req.body.type,
+            "note": req.body.note,
+        }, { abortEarly: false });
+
+        const izin = await this._commandBus.send(
+            new ApprovalIzinCommand(
+                parseInt(req.body.id),
+                req.body.type as StatusIzin,
+                req.body.note,
+            )
+        );
+
+        res.status(200).json({
+            status: 200,
+            message: `berhasil ${req.body.type} izin`,
             data: izin,
             list: null,
             validation: [],

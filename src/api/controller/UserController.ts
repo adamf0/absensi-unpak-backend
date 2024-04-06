@@ -79,6 +79,7 @@ export class UserController {
         await userCreateSchema.validate(req.body, { abortEarly: false });
         const user = await this._commandBus.send(
             new CreateUserCommand(
+                req.body.nama,
                 req.body.username,
                 req.body.password,
                 req.body.level,
@@ -103,6 +104,7 @@ export class UserController {
         const user = await this._commandBus.send(
             new UpdateUserCommand(
                 parseInt(req.body.id),
+                req.body.nama,
                 req.body.username,
                 req.body.password,
                 req.body.level,

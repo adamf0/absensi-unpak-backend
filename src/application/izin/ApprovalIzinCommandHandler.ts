@@ -1,13 +1,14 @@
 import { inject, injectable } from 'inversify';
 import { ICommandHandler } from '../../infrastructure/abstractions/messaging/ICommandHandler';
-import { UpdateUserCommand } from './UpdateUserCommand';
+import { ApprovalIzinCommand } from './ApprovalIzinCommand';
+import { AppDataSource } from '../../infrastructure/config/mysql';
 import { TYPES } from '../../infrastructure/types';
 import { DataSource, getConnection } from 'typeorm';
-import { User } from '../../infrastructure/orm/User';
+import { Izin } from '../../infrastructure/orm/Izin';
 
 @injectable()
-export class UpdateUserCommandHandler implements ICommandHandler<UpdateUserCommand> {
-  commandToHandle: string = UpdateUserCommand.name;
+export class ApprovalIzinCommandHandler implements ICommandHandler<ApprovalIzinCommand> {
+  commandToHandle: string = ApprovalIzinCommand.name;
   // _db: DataSource;
 
   constructor(
@@ -16,17 +17,18 @@ export class UpdateUserCommandHandler implements ICommandHandler<UpdateUserComma
     // this._db = AppDataSource.initialize();
   }
 
-  async handle(command: UpdateUserCommand) {
+  async handle(command: ApprovalIzinCommand) {
     const _db = await getConnection("default");
-    let user = await _db.getRepository(User).findOneByOrFail({
-      id: command.id,
+    let izin = await _db.getRepository(Izin).findOneOrFail({
+        where: {
+          id: command.id
+        },
+        relations: {},
     })
-    user.nama = command.nama;
-    user.username = command.username;
-    user.password = command.password;
-    user.level = command.level;
+    izin.status = command.type
+    izin.catatan = command.note
 
-    await _db.getRepository(User).save(user);
+    await _db.getRepository(Izin).save(izin);
     // const application: Application = new Application(
     //   command.guid,
     //   command.jobId,
@@ -36,6 +38,6 @@ export class UpdateUserCommandHandler implements ICommandHandler<UpdateUserComma
     //   command.currentPosition
     // ); es
 
-    return user;
+    return izin;
   }
 }

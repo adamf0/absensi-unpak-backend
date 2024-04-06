@@ -1,11 +1,13 @@
 import { Request, Response } from 'express';
 import { inject } from 'inversify';
-import { controller, httpGet, httpPost, request, response } from 'inversify-express-utils';
+import { controller, httpPost, request, response } from 'inversify-express-utils';
 import { TYPES } from '../../infrastructure/types';
 import { ICommandBus } from '../../infrastructure/abstractions/messaging/ICommandBus';
 import { IQueryBus } from '../../infrastructure/abstractions/messaging/IQueryBus';
 import { ILog } from '../../infrastructure/abstractions/messaging/ILog';
 import { LoginLocal } from '../../application/login/LoginLocal';
+import { UserSimak } from '../../infrastructure/orm/UserSimak';
+import { User } from '../../infrastructure/orm/User';
 
 @controller('/auth')
 export class AuthController {
@@ -18,14 +20,9 @@ export class AuthController {
 
     @httpPost('/login')
     async check(@request() req: Request, @response() res: Response) {
-        // const con = await getConnection("simak");
-        // const dosen = await con.getRepository(Dosen)
-        // .createQueryBuilder("dosen")
-        // .where("dosen.NIDN = :nidn", { nidn: req.body.username }) // pastikan req.body.nidn telah didefinisikan sebelumnya
-        // .getOne();
         const local = new LoginLocal();
-        const pengguna = local.login(req.body.username,req.body.password)
-
+        const pengguna = await local.login(req.body.username,req.body.password)
+        
         res.status(200).json({
             status: 200,
             message: "",
