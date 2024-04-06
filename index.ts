@@ -61,6 +61,8 @@ import { UpdateUserCommandHandler } from "./src/application/user/UpdateUserComma
 import { UserSimak } from "./src/infrastructure/orm/UserSimak";
 import { ApprovalCutiCommandHandler } from "./src/application/cuti/ApprovalCutiCommandHandler";
 import { ApprovalIzinCommandHandler } from "./src/application/izin/ApprovalIzinCommandHandler";
+import { CountAllIzinOnWaitingQueryHandler } from "./src/application/izin/CountAllIzinOnWaitingQueryHandler";
+import { CountAllCutiOnWaitingQueryHandler } from "./src/application/cuti/CountAllCutiOnWaitingQueryHandler";
 var cron = require('node-cron');
 
 dotenv.config();
@@ -178,6 +180,7 @@ container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(ApprovalCutiC
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetCutiQueryHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllCutiQueryHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllCutiByNIDNYearMonthQueryHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(CountAllCutiOnWaitingQueryHandler);
 //</cuti>
 //<user>
 container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(CreateUserCommandHandler);
@@ -197,6 +200,7 @@ container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(DeleteIzinCom
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetIzinQueryHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllIzinQueryHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllIzinByNIDNYearMonthQueryHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(CountAllIzinOnWaitingQueryHandler);
 //</izin>
 //<calendar>
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllAbsenByNIDNYearMonthQueryHandler);

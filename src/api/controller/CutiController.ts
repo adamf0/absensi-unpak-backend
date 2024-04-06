@@ -14,6 +14,8 @@ import { cutiApprovalSchema, cutiCreateSchema, cutiUpdateSchema } from '../../do
 import { handleUploadFileDokumen } from '../../infrastructure/port/IO';
 import { ApprovalCutiCommand } from '../../application/cuti/ApprovalCutiCommand';
 import { StatusCuti } from '../../domain/enum/StatusCuti';
+import { CountAllCutiOnWaitingQuery } from '../../application/cuti/CountAllCutiOnWaitingQuery';
+import { CountAllIzinOnWaitingQuery } from '../../application/izin/CountAllIzinOnWaitingQuery';
 
 @controller('/cuti')
 export class CutiController {
@@ -79,6 +81,16 @@ export class CutiController {
 
     @httpPost('/create')
     async store(@request() req: Request, @response() res: Response) {
+        const [_, countCuti] = await this._queryBus.execute(
+            new CountAllCutiOnWaitingQuery()
+        );
+        const [__, countIzin] = await this._queryBus.execute(
+            new CountAllIzinOnWaitingQuery()
+        );
+        if(countCuti || countIzin){
+            throw new Error(`pengajuan cuti ditolak karena masih ada ${countCuti? "cuti":"izin"} yg belum di terima`)
+        }
+
         const uploadResult = await handleUploadFileDokumen(req, res);
         // const uploadedFile: UploadedFile = uploadResult.file;
         // const { body } = uploadResult;

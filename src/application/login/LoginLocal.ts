@@ -17,37 +17,39 @@ export class LoginLocal implements LoginProxy {
             //   Dosen: true,
             },
         })
-
-        if(user===null){
-            const simak = new LoginSimak()
-            return simak.login(username,password);
-        }
-
-        const _db1 = await getConnection("simak");
-        const dosen = await _db1.getRepository(Dosen).findOne({
-            where: {
-                NIDN: user.NIDN
-            },
-            relations: {
-            //   Dosen: true,
-            },
-        })
-
+        // console.log(user,user==null)
+        let dosen = null
         let levels = []
-        if(user.level){
+        if(user?.level){
             levels.push(user.level)
         }
-        if(dosen){
-            levels.push("dosen")
+
+        if(user==null){
+            const simak = new LoginSimak()
+            return simak.login(username,password);
+        } else if(user.NIDN){
+            const _db1 = await getConnection("simak");
+            dosen = await _db1.getRepository(Dosen).findOne({
+                where: {
+                    NIDN: user.NIDN
+                },
+                relations: {
+                //   Dosen: true,
+                },
+            })
+            if(dosen){
+                levels.push("dosen")
+            }        
         }
+
         return new UserEntity(
             user.id+"",
             user.nama,
             levels,
-            dosen.NIDN,
-            dosen.kode_fak,
-            dosen.kode_jurusan,
-            dosen.kode_prodi,
+            dosen?.NIDN??"",
+            dosen?.kode_fak??"",
+            dosen?.kode_jurusan??"",
+            dosen?.kode_prodi??"",
         )
     }
 }

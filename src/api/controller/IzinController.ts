@@ -13,6 +13,8 @@ import { GetIzinQuery } from '../../application/izin/GetIzinQuery';
 import { izinApprovalSchema, izinCreateSchema, izinUpdateSchema } from '../../domain/validation/izinSchema';
 import { StatusIzin } from '../../domain/enum/StatusIzin';
 import { ApprovalIzinCommand } from '../../application/izin/ApprovalIzinCommand';
+import { CountAllCutiOnWaitingQuery } from '../../application/cuti/CountAllCutiOnWaitingQuery';
+import { CountAllIzinOnWaitingQuery } from '../../application/izin/CountAllIzinOnWaitingQuery';
 
 @controller('/izin')
 export class IzinController {
@@ -79,6 +81,17 @@ export class IzinController {
     @httpPost('/create')
     async store(@request() req: Request, @response() res: Response) {
         await izinCreateSchema.validate(req.body, { abortEarly: false });
+
+        const [_, countCuti] = await this._queryBus.execute(
+            new CountAllCutiOnWaitingQuery()
+        );
+        const [__, countIzin] = await this._queryBus.execute(
+            new CountAllIzinOnWaitingQuery()
+        );
+        if(countCuti || countIzin){
+            throw new Error(`pengajuan cuti ditolak karena masih ada ${countCuti? "cuti":"izin"} yg belum di terima`)
+        }
+        
         const izin = await this._commandBus.send(
             new CreateIzinCommand(
                 req.body.nidn,
