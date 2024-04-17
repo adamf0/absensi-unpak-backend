@@ -21,17 +21,24 @@ declare module 'express' {
     }
 }
 
-const uploadFilePath = path.resolve(__dirname, '../..', '../public/uploads');
+export const cutiFilePath = path.resolve(__dirname, '../..', '../public/cuti');
+export const izinFilePath = path.resolve(__dirname, '../..', '../public/izin');
 
-const storageFile: Multer['StorageEngine'] = multer.diskStorage({
-    destination: uploadFilePath,
+const storageFileCuti: Multer['StorageEngine'] = multer.diskStorage({
+    destination: cutiFilePath,
     filename(req: ExpressRequest, file: File, fn: (error: Error | null, filename: string) => void): void {
         fn(null, `${new Date().getTime().toString()}-${file.fieldname}${path.extname(file.originalname)}`);
     },
 });
+const storageFileIzin: Multer['StorageEngine'] = multer.diskStorage({
+  destination: izinFilePath,
+  filename(req: ExpressRequest, file: File, fn: (error: Error | null, filename: string) => void): void {
+      fn(null, `${new Date().getTime().toString()}-${file.fieldname}${path.extname(file.originalname)}`);
+  },
+});
 
-const uploadFile = multer({
-    storage: storageFile,
+const uploadFileCuti = multer({
+    storage: storageFileCuti,
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter(req, file, callback) {
         const extension: boolean = ['.pdf'].indexOf(path.extname(file.originalname).toLowerCase()) >= 0;
@@ -45,25 +52,25 @@ const uploadFile = multer({
     },
 }).single('dokumen');
 
-const handleUploadFileDokumen = async (req: ExpressRequest, res: Response): Promise<any> => {
-    // return new Promise((resolve, reject): void => {
-    //     uploadFile(req, res, (error) => {
-    //         if (error instanceof multer.MulterError && error.code === 'LIMIT_UNEXPECTED_FILE') {
-    //             // If no file was uploaded, resolve with null
-    //             return resolve({ file: null, body: req.body });
-    //           }
-              
-    //         if (error) {
-    //             reject(error);
-    //         }
+const uploadFileIzin = multer({
+  storage: storageFileIzin,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter(req, file, callback) {
+      const extension: boolean = ['.pdf'].indexOf(path.extname(file.originalname).toLowerCase()) >= 0;
+      const mimeType: boolean = ['application/pdf'].indexOf(file.mimetype) >= 0;
 
-    //         // resolve({ file: req.file, body: req.body });
-    //         resolve(req);
-    //     });
-    // });
+      if (extension && mimeType) {
+          return callback(null, true);
+      }
+
+      callback(new Error('Invalid file type'));
+  },
+}).single('dokumen');
+
+const saveDokumenCuti = async (req: ExpressRequest, res: Response): Promise<any> => {
     try {
         await new Promise((resolve, reject): void => {
-          uploadFile(req, res, (error) => {
+          uploadFileCuti(req, res, (error) => {
             if (error) {
               return reject(error);
             }
@@ -87,5 +94,32 @@ const handleUploadFileDokumen = async (req: ExpressRequest, res: Response): Prom
         throw error;
       }
 };
+const saveDokumenIzin = async (req: ExpressRequest, res: Response): Promise<any> => {
+  try {
+      await new Promise((resolve, reject): void => {
+        uploadFileIzin(req, res, (error) => {
+          if (error) {
+            return reject(error);
+          }
+          
+          resolve(req);
+        });
+      });
+  
+      // await new Promise((resolve, reject): void => {
+      //     uploadFile(req, res, (error) => {
+      //       if (error) {
+      //         return reject(error);
+      //       }
+            
+      //       resolve(req);
+      //     });
+      // });
+  
+      return req;
+    } catch (error) {
+      throw error;
+    }
+};
 
-export { handleUploadFileDokumen};
+export { saveDokumenCuti, saveDokumenIzin};

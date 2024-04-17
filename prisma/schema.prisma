@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = "mysql://root:@localhost:3306/unpak-absensi"
+}
+
+datasource simak {
+  provider = "mysql"
+  url      = "mysql://root:@localhost:3306/unpak_simak"
+}
+
+enum StatusCuti {
+    menunggu
+    terima
+    tolak
+}
+
+enum StatusIzin {
+    menunggu
+    terima
+    tolak
+}
+
+enum Level {
+    sdm
+    warek
+    atasan
+    dosen
+    pegawai
+}
+
+model Absen {
+  id          Int       @id @default(autoincrement())
+  nidn        String    @db.VarChar(20)
+  tanggal     DateTime  
+  absen_masuk DateTime
+  absen_keluar DateTime? // Kolom ini dapat memiliki nilai null
+}
+
+model User {
+  id          Int        @id @default(autoincrement())
+  username    String     @db.VarChar(20)
+  password    String     @db.Text
+  nama        String     @db.VarChar(200)
+  level       Level      
+  NIDN        String     @db.VarChar(50)
+}
+
+model Cuti {
+  id                Int           @id @default(autoincrement())
+  nidn              String        @db.VarChar(20)
+  tanggal_pengajuan DateTime
+  lama_cuti         Int
+  tujuan            String
+  dokumen           String?       @db.Text
+  status            StatusCuti       
+  catatan           String?       @db.Text
+  jenisCutiId       Int           @unique
+  JenisCuti         JenisCuti     @relation(fields: [jenisCutiId], references: [id])
+}
+
+model Izin {
+  id                Int           @id @default(autoincrement())
+  nidn              String        @db.VarChar(20)
+  tanggal_pengajuan DateTime
+  tujuan            String
+  dokumen           String?       @db.Text
+  status            StatusCuti       
+  catatan           String?       @db.Text
+  jenisIzinId       Int           @unique
+  JenisIzin         JenisIzin     @relation(fields: [jenisIzinId], references: [id])
+}
+
+model JenisCuti {
+  id       Int        @id @default(autoincrement())
+  nama     String     @db.VarChar(255)
+  min      Int
+  max      Int
+  kondisi  String     @db.Text
+  dokumen  Boolean
+  cuti     Cuti?
+}
+
+model JenisIzin {
+  id       Int        @id @default(autoincrement())
+  nama     String     @db.VarChar(255)
+  izin     Izin?
+}

@@ -63,6 +63,11 @@ import { ApprovalCutiCommandHandler } from "./src/application/cuti/ApprovalCutiC
 import { ApprovalIzinCommandHandler } from "./src/application/izin/ApprovalIzinCommandHandler";
 import { CountAllIzinOnWaitingQueryHandler } from "./src/application/izin/CountAllIzinOnWaitingQueryHandler";
 import { CountAllCutiOnWaitingQueryHandler } from "./src/application/cuti/CountAllCutiOnWaitingQueryHandler";
+import { GetAllJenisIzinQueryHandler } from "./src/application/jenis_izin/GetAllJenisIzinQueryHandler";
+import { JenisIzinController } from "./src/api/controller/JenisIzinController";
+import { JenisIzin } from "./src/infrastructure/orm/JenisIzin";
+import { PrismaClient } from "@prisma/client";
+import { ValidationError } from "yup";
 var cron = require('node-cron');
 
 dotenv.config();
@@ -96,13 +101,14 @@ server.setErrorConfig((app: Application) => {
             if (process.env.deploy != "dev") {
                 _log.saveLog(error.message || error.message);
             }
-        } else if (error instanceof Yup.ValidationError) {
+        } else if (error instanceof ValidationError) {
             const invalid_request: Errors = {};
             error.inner.forEach((err) => {
                 if (err.path) {
                     invalid_request[err.path] = err.message;
                 }
             });
+            invalid_request['body'] = req.body;
             errorMessage = "Invalid request";
             logMessage = JSON.stringify(invalid_request);
         } if(error instanceof Error){
@@ -131,7 +137,7 @@ async function connect(){
             username: process.env.db_username,
             password: process.env.db_password,
             database: process.env.db_database,
-            entities: [Absen,Cuti,JenisCuti,Izin,User],
+            entities: [Absen,Cuti,JenisCuti,JenisIzin,Izin,User],
             logging: true,
             synchronize: true,
         },
@@ -143,7 +149,7 @@ async function connect(){
             username: process.env.db_username,
             password: process.env.db_password,
             database: process.env.db_database,
-            entities: [Absen,Cuti,JenisCuti,Izin,User],
+            entities: [Absen,Cuti,JenisCuti,JenisIzin,Izin,User],
             logging: true,
             synchronize: true,
         },
@@ -161,8 +167,7 @@ async function connect(){
     ])
 }
 connect()
-// container.bind<AppDataSource>(TYPES.DB).toConstantValue(AppDataSource.initialize());
-// container.bind<AppDataSource>(TYPES.SIMAK).toConstantValue(AppDataSource.simak());
+
 container.bind<ILog>(TYPES.Log).to(Log);
 container.bind<ICommandBus>(TYPES.CommandBus).toConstantValue(new CommandBus());
 container.bind<IQueryBus<IQuery>>(TYPES.QueryBus).toConstantValue(new QueryBus());
@@ -192,6 +197,9 @@ container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllUserQueryHand
 //<jenis_cuti>
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllJenisCutiQueryHandler);
 //</jenis_cuti>
+//<jenis_izin>
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllJenisIzinQueryHandler);
+//</jenis_izin>
 //<izin>
 container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(CreateIzinCommandHandler);
 container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(UpdateIzinCommandHandler);
@@ -221,6 +229,7 @@ container.bind<Application>(TYPES.ApiServer).toConstantValue(apiServer);
 container.bind<AbsenController>(TYPES.Controller).to(AbsenController);
 container.bind<CutiController>(TYPES.Controller).to(CutiController);
 container.bind<JenisCutiController>(TYPES.Controller).to(JenisCutiController);
+container.bind<JenisIzinController>(TYPES.Controller).to(JenisIzinController);
 container.bind<CalendarController>(TYPES.Controller).to(CalendarController);
 container.bind<IzinController>(TYPES.Controller).to(IzinController);
 container.bind<UserController>(TYPES.Controller).to(UserController);

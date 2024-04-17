@@ -11,10 +11,12 @@ import { DeleteIzinCommand } from '../../application/izin/DeleteIzinCommand';
 import { GetAllIzinQuery } from '../../application/izin/GetAllIzinQuery';
 import { GetIzinQuery } from '../../application/izin/GetIzinQuery';
 import { izinApprovalSchema, izinCreateSchema, izinUpdateSchema } from '../../domain/validation/izinSchema';
-import { StatusIzin } from '../../domain/enum/StatusIzin';
+import { izinFilePath, saveDokumenIzin } from '../../infrastructure/port/IO';
 import { ApprovalIzinCommand } from '../../application/izin/ApprovalIzinCommand';
+import { StatusIzin } from '../../domain/enum/StatusIzin';
 import { CountAllCutiOnWaitingQuery } from '../../application/cuti/CountAllCutiOnWaitingQuery';
 import { CountAllIzinOnWaitingQuery } from '../../application/izin/CountAllIzinOnWaitingQuery';
+import fs from 'fs';
 
 @controller('/izin')
 export class IzinController {
@@ -31,9 +33,12 @@ export class IzinController {
         const startIndex = (page - 1) * pageSize;
         const endIndex = page * pageSize;
 
-        const [data, count] = await this._queryBus.execute(
+        let [data, count] = await this._queryBus.execute(
             new GetAllIzinQuery(pageSize, startIndex)
         );
+        data.map((d)=>{
+            d.dokumen = d.dokumen==null? null:`${req.protocol}://${req.headers.host}/static/izin/${d.dokumen}`
+        })
         const totalPage = Math.ceil(count / pageSize);
         const nextPage = (page + 1 > totalPage) ? null : page + 1;
         const prevPage = (page - 1 < 1) || (totalPage < page) ? null : page - 1;
@@ -64,9 +69,10 @@ export class IzinController {
 
     @httpGet('/:id')
     async detail(@request() req: Request, @response() res: Response) {
-        const izin = await this._queryBus.execute(
+        let izin = await this._queryBus.execute(
             new GetIzinQuery(parseInt(req.params.id))
         );
+        izin.dokumen = izin.dokumen==null? null:`${req.protocol}://${req.headers.host}/static/izin/${izin.dokumen}`
 
         res.status(200).json({
             status: 200,
@@ -80,8 +86,6 @@ export class IzinController {
 
     @httpPost('/create')
     async store(@request() req: Request, @response() res: Response) {
-        await izinCreateSchema.validate(req.body, { abortEarly: false });
-
         const [_, countCuti] = await this._queryBus.execute(
             new CountAllCutiOnWaitingQuery()
         );
@@ -89,14 +93,26 @@ export class IzinController {
             new CountAllIzinOnWaitingQuery()
         );
         if(countCuti || countIzin){
-            throw new Error(`pengajuan cuti ditolak karena masih ada ${countCuti? "cuti":"izin"} yg belum di terima`)
+            throw new Error(`pengajuan izin ditolak karena masih ada ${countCuti? "cuti":"izin"} yg belum di terima`)
         }
-        
+
+        const uploadResult = await saveDokumenIzin(req, res);
+        // const uploadedFile: UploadedFile = uploadResult.file;
+        // const { body } = uploadResult;
+        await izinCreateSchema.validate(req.body, { abortEarly: false }).catch((error:Error) => {
+            if(uploadResult?.file?.filename!==null){
+                fs.unlink(`${izinFilePath}/${uploadResult?.file?.filename}`, (err) => {})
+            }
+            throw error
+        });
+
         const izin = await this._commandBus.send(
             new CreateIzinCommand(
                 req.body.nidn,
                 req.body.tanggal_pengajuan,
                 req.body.tujuan,
+                req.body.jenis_izin,
+                uploadResult?.file?.filename
             )
         );
 
@@ -112,21 +128,58 @@ export class IzinController {
 
     @httpPost('/update')
     async update(@request() req: Request, @response() res: Response) {
-        console.log(req.body)
-        await izinUpdateSchema.validate(req.body, { abortEarly: false });
-
+        const uploadResult = await saveDokumenIzin(req, res);
+        // const uploadedFile: UploadedFile = uploadResult.file;
+        // const { body } = uploadResult;
+        await izinUpdateSchema.validate(req.body, { abortEarly: false }).catch((error:Error) => {
+            if(uploadResult?.file?.filename!==null){
+                fs.unlink(`${izinFilePath}/${uploadResult?.file?.filename}`, (err) => {})
+            }
+            throw error
+        });
+        
         const izin = await this._commandBus.send(
             new UpdateIzinCommand(
                 parseInt(req.body.id),
                 req.body.nidn,
                 req.body.tanggal_pengajuan,
                 req.body.tujuan,
+                req.body.jenis_izin,
+                uploadResult?.file?.filename
             )
         );
 
         res.status(200).json({
             status: 200,
             message: "berhasil update data izin",
+            data: {
+                "id": req.body.id,
+                "nidn": req.body.nidn,
+                "tanggal_pengajuan": req.body.tanggal_pengajuan,
+                "tujuan": req.body.tujuan,
+                "jenis_izin": req.body.jenis_izin,
+            },
+            list: null,
+            validation: [],
+            log: [],
+        });
+    }
+
+    @httpGet('/delete/:id')
+    async delete(@request() req: Request, @response() res: Response) {
+        const dataIzin = await this._queryBus.execute(
+            new GetIzinQuery(parseInt(req.params.id))
+        );
+        const izin = await this._commandBus.send(
+            new DeleteIzinCommand(parseInt(req.params.id))
+        );
+        if(dataIzin?.dokumen!==null){ //belum di tes lagi
+            fs.unlink(`${izinFilePath}/${dataIzin?.dokumen}`, (err) => {})
+        }
+
+        res.status(200).json({
+            status: 200,
+            message: "berhasil hapus pengajuan izin",
             data: izin,
             list: null,
             validation: [],
@@ -153,22 +206,6 @@ export class IzinController {
         res.status(200).json({
             status: 200,
             message: `berhasil ${req.body.type} izin`,
-            data: izin,
-            list: null,
-            validation: [],
-            log: [],
-        });
-    }
-
-    @httpGet('/delete/:id')
-    async delete(@request() req: Request, @response() res: Response) {
-        const izin = await this._commandBus.send(
-            new DeleteIzinCommand(parseInt(req.params.id))
-        );
-
-        res.status(200).json({
-            status: 200,
-            message: "berhasil hapus pengajuan izin",
             data: izin,
             list: null,
             validation: [],

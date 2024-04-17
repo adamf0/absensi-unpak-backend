@@ -24,4 +24,4 @@ export class CreateCutiCommand extends Command {
       this.jenis_cuti = jenis_cuti
       this.dokumen = dokumen
     }
-  }
+}

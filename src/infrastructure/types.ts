@@ -10,6 +10,7 @@ const TYPES = {
     Log: Symbol('Log'),
     DB: Symbol('DB'),
     SIMAK: Symbol('SIMAK'),
+    PrismaClient: Symbol('PrismaClient'),
 };
 
 export { TYPES };

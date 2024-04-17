@@ -6,6 +6,7 @@ import { AppDataSource } from '../../infrastructure/config/mysql';
 import { TYPES } from '../../infrastructure/types';
 import { DataSource, getConnection } from 'typeorm';
 import { Cuti } from '../../infrastructure/orm/Cuti';
+import { JenisCuti } from '../../infrastructure/orm/JenisCuti';
 
 @injectable()
 export class UpdateCutiCommandHandler implements ICommandHandler<UpdateCutiCommand> {
@@ -27,7 +28,9 @@ export class UpdateCutiCommandHandler implements ICommandHandler<UpdateCutiComma
     cuti.tanggal_pengajuan = command.tanggal_pengajuan;
     cuti.lama_cuti = command.lama_cuti;
     cuti.tujuan = command.tujuan;
-    cuti.jenis_cuti = parseInt(command.jenis_cuti);
+    cuti.JenisCuti = await _db.getRepository(JenisCuti).findOne({where:{
+      id:parseInt(command.jenis_cuti)
+    }});
     if(command.dokumen !== null)
       cuti.dokumen = command.dokumen
 

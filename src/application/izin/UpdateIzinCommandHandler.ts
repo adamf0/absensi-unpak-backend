@@ -4,6 +4,7 @@ import { UpdateIzinCommand } from './UpdateIzinCommand';
 import { TYPES } from '../../infrastructure/types';
 import { DataSource, getConnection } from 'typeorm';
 import { Izin } from '../../infrastructure/orm/Izin';
+import { JenisIzin } from '../../infrastructure/orm/JenisIzin';
 
 @injectable()
 export class UpdateIzinCommandHandler implements ICommandHandler<UpdateIzinCommand> {
@@ -18,14 +19,19 @@ export class UpdateIzinCommandHandler implements ICommandHandler<UpdateIzinComma
 
   async handle(command: UpdateIzinCommand) {
     const _db = await getConnection("default");
-    let cuti = await _db.getRepository(Izin).findOneByOrFail({
+    let izin = await _db.getRepository(Izin).findOneByOrFail({
       id: command.id,
     })
-    cuti.nidn = command.nidn;
-    cuti.tanggal_pengajuan = command.tanggal_pengajuan;
-    cuti.tujuan = command.tujuan;
+    izin.nidn = command.nidn;
+    izin.tanggal_pengajuan = command.tanggal_pengajuan;
+    izin.tujuan = command.tujuan;
+    izin.JenisIzin = await _db.getRepository(JenisIzin).findOne({where:{
+      id:parseInt(command.jenis_izin)
+    }});
+    if(command.dokumen !== null)
+      izin.dokumen = command.dokumen
 
-    await _db.getRepository(Izin).save(cuti);
+    await _db.getRepository(Izin).save(izin);
     // const application: Application = new Application(
     //   command.guid,
     //   command.jobId,
@@ -35,6 +41,6 @@ export class UpdateIzinCommandHandler implements ICommandHandler<UpdateIzinComma
     //   command.currentPosition
     // ); es
 
-    return cuti;
+    return izin;
   }
 }

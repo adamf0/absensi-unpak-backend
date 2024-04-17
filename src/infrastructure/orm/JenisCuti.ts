@@ -1,5 +1,5 @@
 import "reflect-metadata"
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, OneToMany } from "typeorm"
 import { Cuti } from "./Cuti"
 
 @Entity("jenis_cuti")
@@ -23,7 +23,7 @@ export class JenisCuti {
     @Column()
     dokumen: boolean
 
-    @OneToOne(() => Cuti, cuti => cuti.jenis_cuti,{
+    @OneToMany(() => Cuti, cuti => cuti.JenisCuti,{
     })
-    cuti: Cuti
+    cuti: Cuti[]
 }

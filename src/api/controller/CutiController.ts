@@ -11,11 +11,12 @@ import { DeleteCutiCommand } from '../../application/cuti/DeleteCutiCommand';
 import { GetAllCutiQuery } from '../../application/cuti/GetAllCutiQuery';
 import { GetCutiQuery } from '../../application/cuti/GetCutiQuery';
 import { cutiApprovalSchema, cutiCreateSchema, cutiUpdateSchema } from '../../domain/validation/cutiSchema';
-import { handleUploadFileDokumen } from '../../infrastructure/port/IO';
+import { cutiFilePath, saveDokumenCuti } from '../../infrastructure/port/IO';
 import { ApprovalCutiCommand } from '../../application/cuti/ApprovalCutiCommand';
 import { StatusCuti } from '../../domain/enum/StatusCuti';
 import { CountAllCutiOnWaitingQuery } from '../../application/cuti/CountAllCutiOnWaitingQuery';
 import { CountAllIzinOnWaitingQuery } from '../../application/izin/CountAllIzinOnWaitingQuery';
+import fs from 'fs';
 
 @controller('/cuti')
 export class CutiController {
@@ -32,9 +33,12 @@ export class CutiController {
         const startIndex = (page - 1) * pageSize;
         const endIndex = page * pageSize;
 
-        const [data, count] = await this._queryBus.execute(
+        let [data, count] = await this._queryBus.execute(
             new GetAllCutiQuery(pageSize, startIndex)
         );
+        data.map((d)=>{
+            d.dokumen = d.dokumen==null? null:`${req.protocol}://${req.headers.host}/static/cuti/${d.dokumen}`
+        })
         const totalPage = Math.ceil(count / pageSize);
         const nextPage = (page + 1 > totalPage) ? null : page + 1;
         const prevPage = (page - 1 < 1) || (totalPage < page) ? null : page - 1;
@@ -65,9 +69,10 @@ export class CutiController {
 
     @httpGet('/:id')
     async detail(@request() req: Request, @response() res: Response) {
-        const cuti = await this._queryBus.execute(
+        let cuti = await this._queryBus.execute(
             new GetCutiQuery(parseInt(req.params.id))
         );
+        cuti.dokumen = cuti.dokumen==null? null:`${req.protocol}://${req.headers.host}/static/cuti/${cuti.dokumen}`
 
         res.status(200).json({
             status: 200,
@@ -91,11 +96,16 @@ export class CutiController {
             throw new Error(`pengajuan cuti ditolak karena masih ada ${countCuti? "cuti":"izin"} yg belum di terima`)
         }
 
-        const uploadResult = await handleUploadFileDokumen(req, res);
+        const uploadResult = await saveDokumenCuti(req, res);
         // const uploadedFile: UploadedFile = uploadResult.file;
         // const { body } = uploadResult;
+        await cutiCreateSchema.validate(req.body, { abortEarly: false }).catch((error:Error) => {
+            if(uploadResult?.file?.filename!==null){
+                fs.unlink(`${cutiFilePath}/${uploadResult?.file?.filename}`, (err) => {})
+            }
+            throw error
+        });
 
-        await cutiCreateSchema.validate(req.body, { abortEarly: false });
         const cuti = await this._commandBus.send(
             new CreateCutiCommand(
                 req.body.nidn,
@@ -119,18 +129,15 @@ export class CutiController {
 
     @httpPost('/update')
     async update(@request() req: Request, @response() res: Response) {
-        const uploadResult = await handleUploadFileDokumen(req, res);
+        const uploadResult = await saveDokumenCuti(req, res);
         // const uploadedFile: UploadedFile = uploadResult.file;
         // const { body } = uploadResult;
-
-        await cutiUpdateSchema.validate({
-            "id": req.body.id,
-            "nidn": req.body.nidn,
-            "tanggal_pengajuan": req.body.tanggal_pengajuan,
-            "lama_cuti": req.body.lama_cuti,
-            "tujuan": req.body.tujuan,
-            "jenis_cuti": req.body.jenis_cuti,
-        }, { abortEarly: false });
+        await cutiUpdateSchema.validate(req.body, { abortEarly: false }).catch((error:Error) => {
+            if(uploadResult?.file?.filename!==null){
+                fs.unlink(`${cutiFilePath}/${uploadResult?.file?.filename}`, (err) => {})
+            }
+            throw error
+        });
 
         const cuti = await this._commandBus.send(
             new UpdateCutiCommand(
@@ -156,9 +163,15 @@ export class CutiController {
 
     @httpGet('/delete/:id')
     async delete(@request() req: Request, @response() res: Response) {
+        const dataCuti = await this._queryBus.execute(
+            new GetCutiQuery(parseInt(req.params.id))
+        );
         const cuti = await this._commandBus.send(
             new DeleteCutiCommand(parseInt(req.params.id))
         );
+        if(dataCuti?.dokumen!==null){ //belum di tes lagi
+            fs.unlink(`${cutiFilePath}/${dataCuti?.dokumen}`, (err) => {})
+        }
 
         res.status(200).json({
             status: 200,
