@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import helmet from "helmet";
 import cors from 'cors';
 import express, { Application, Response } from "express";
-import { json, urlencoded } from "body-parser";
+import bodyParser, { json, urlencoded } from "body-parser";
 import { InversifyExpressServer } from "inversify-express-utils";
 import { Container } from "inversify";
 import { ICommand } from "./src/infrastructure/abstractions/messaging/ICommand";
@@ -52,12 +52,12 @@ import { Izin } from "./src/infrastructure/orm/Izin";
 import { Cuti } from "./src/infrastructure/orm/Cuti";
 import { JenisCuti } from "./src/infrastructure/orm/JenisCuti";
 import { User } from "./src/infrastructure/orm/User";
-import { UserController } from "./src/api/controller/UserController";
-import { CreateUserCommandHandler } from "./src/application/user/CreateUserCommandHandler";
-import { DeleteUserCommandHandler } from "./src/application/user/DeleteUserCommandHandler";
-import { GetAllUserQueryHandler } from "./src/application/user/GetAllUserQueryHandler";
-import { GetUserQueryHandler } from "./src/application/user/GetUserQueryHandler";
-import { UpdateUserCommandHandler } from "./src/application/user/UpdateUserCommandHandler";
+import { PenggunaController } from "./src/api/controller/PenggunaController";
+import { CreatePenggunaCommandHandler } from "./src/application/pengguna/CreatePenggunaCommandHandler";
+import { DeletePenggunaCommandHandler } from "./src/application/pengguna/DeletePenggunaCommandHandler";
+import { GetAllPenggunaQueryHandler } from "./src/application/pengguna/GetAllPenggunaQueryHandler";
+import { GetPenggunaQueryHandler } from "./src/application/pengguna/GetPenggunaQueryHandler";
+import { UpdatePenggunaCommandHandler } from "./src/application/pengguna/UpdatePenggunaCommandHandler";
 import { UserSimak } from "./src/infrastructure/orm/UserSimak";
 import { ApprovalCutiCommandHandler } from "./src/application/cuti/ApprovalCutiCommandHandler";
 import { ApprovalIzinCommandHandler } from "./src/application/izin/ApprovalIzinCommandHandler";
@@ -66,7 +66,6 @@ import { CountAllCutiOnWaitingQueryHandler } from "./src/application/cuti/CountA
 import { GetAllJenisIzinQueryHandler } from "./src/application/jenis_izin/GetAllJenisIzinQueryHandler";
 import { JenisIzinController } from "./src/api/controller/JenisIzinController";
 import { JenisIzin } from "./src/infrastructure/orm/JenisIzin";
-import { PrismaClient } from "@prisma/client";
 import { ValidationError } from "yup";
 var cron = require('node-cron');
 
@@ -83,7 +82,9 @@ var corsOptions = {
 const container = new Container();
 const server = new InversifyExpressServer(container);
 server.setConfig((app: Application) => {
+    // parse application/x-www-form-urlencoded
     app.use(urlencoded({ extended: true }));
+    // parse application/json
     app.use(json());
     app.use(helmet());
     app.use(cors(corsOptions));
@@ -149,7 +150,7 @@ async function connect(){
             username: process.env.db_username,
             password: process.env.db_password,
             database: process.env.db_database,
-            entities: [Absen,Cuti,JenisCuti,JenisIzin,Izin,User],
+            entities: [Absen],
             logging: true,
             synchronize: true,
         },
@@ -188,11 +189,11 @@ container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllCutiByNIDNYea
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(CountAllCutiOnWaitingQueryHandler);
 //</cuti>
 //<user>
-container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(CreateUserCommandHandler);
-container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(UpdateUserCommandHandler);
-container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(DeleteUserCommandHandler);
-container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetUserQueryHandler);
-container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllUserQueryHandler);
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(CreatePenggunaCommandHandler);
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(UpdatePenggunaCommandHandler);
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(DeletePenggunaCommandHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetPenggunaQueryHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllPenggunaQueryHandler);
 //</user>
 //<jenis_cuti>
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllJenisCutiQueryHandler);
@@ -232,7 +233,7 @@ container.bind<JenisCutiController>(TYPES.Controller).to(JenisCutiController);
 container.bind<JenisIzinController>(TYPES.Controller).to(JenisIzinController);
 container.bind<CalendarController>(TYPES.Controller).to(CalendarController);
 container.bind<IzinController>(TYPES.Controller).to(IzinController);
-container.bind<UserController>(TYPES.Controller).to(UserController);
+container.bind<PenggunaController>(TYPES.Controller).to(PenggunaController);
 container.bind<AuthController>(TYPES.Controller).to(AuthController);
 
 const api: Application = container.get<Application>(TYPES.ApiServer);

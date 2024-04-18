@@ -1,6 +1,6 @@
 import { IQuery } from "../../infrastructure/abstractions/messaging/IQuery";
 
-export class GetAllUserQuery implements IQuery {
+export class GetAllPenggunaQuery implements IQuery {
     public take: number;
     public skip: number;
     constructor(

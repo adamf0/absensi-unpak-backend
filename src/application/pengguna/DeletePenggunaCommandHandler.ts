@@ -1,13 +1,12 @@
-import { inject, injectable } from 'inversify';
+import { injectable } from 'inversify';
 import { ICommandHandler } from '../../infrastructure/abstractions/messaging/ICommandHandler';
-import { DeleteUserCommand } from './DeleteUserCommand';
-import { TYPES } from '../../infrastructure/types';
-import { DataSource, getConnection } from 'typeorm';
+import { DeletePenggunaCommand } from './DeletePenggunaCommand';
+import { getConnection } from 'typeorm';
 import { User } from '../../infrastructure/orm/User';
 
 @injectable()
-export class DeleteUserCommandHandler implements ICommandHandler<DeleteUserCommand> {
-  commandToHandle: string = DeleteUserCommand.name;
+export class DeletePenggunaCommandHandler implements ICommandHandler<DeletePenggunaCommand> {
+  commandToHandle: string = DeletePenggunaCommand.name;
   // _db: DataSource;
 
   constructor(
@@ -16,7 +15,7 @@ export class DeleteUserCommandHandler implements ICommandHandler<DeleteUserComma
     // this._db = AppDataSource.initialize();
   }
 
-  async handle(command: DeleteUserCommand) {
+  async handle(command: DeletePenggunaCommand) {
     const _db = await getConnection("default");
     await _db.getRepository(User).delete(command.id)
 

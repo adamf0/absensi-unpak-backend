@@ -1,9 +1,7 @@
-import { inject, injectable } from 'inversify';
+import { injectable } from 'inversify';
 import { ICommandHandler } from '../../infrastructure/abstractions/messaging/ICommandHandler';
 import { CreateCutiCommand } from './CreateCutiCommand';
-import { AppDataSource } from '../../infrastructure/config/mysql';
-import { TYPES } from '../../infrastructure/types';
-import { DataSource, getConnection } from 'typeorm';
+import { getConnection } from 'typeorm';
 import { Cuti } from '../../infrastructure/orm/Cuti';
 import { JenisCuti } from '../../infrastructure/orm/JenisCuti';
 

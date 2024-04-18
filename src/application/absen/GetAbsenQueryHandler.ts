@@ -1,9 +1,7 @@
-import { inject, injectable } from 'inversify';
+import { injectable } from 'inversify';
 import { IQueryHandler } from '../../infrastructure/abstractions/messaging/IQueryHandler';
-import { TYPES } from '../../infrastructure/types';
 import { GetAbsenQuery } from './GetAbsenQuery';
-import { DataSource, getConnection } from 'typeorm';
-import { AppDataSource } from '../../infrastructure/config/mysql';
+import { getConnection } from 'typeorm';
 import { Absen } from '../../infrastructure/orm/Absen';
 
 @injectable()

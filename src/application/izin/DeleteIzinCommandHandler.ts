@@ -1,8 +1,7 @@
-import { inject, injectable } from 'inversify';
+import { injectable } from 'inversify';
 import { ICommandHandler } from '../../infrastructure/abstractions/messaging/ICommandHandler';
 import { DeleteIzinCommand } from './DeleteIzinCommand';
-import { TYPES } from '../../infrastructure/types';
-import { DataSource, getConnection } from 'typeorm';
+import { getConnection } from 'typeorm';
 import { Izin } from '../../infrastructure/orm/Izin';
 
 @injectable()

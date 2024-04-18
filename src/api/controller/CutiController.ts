@@ -166,7 +166,7 @@ export class CutiController {
         const dataCuti = await this._queryBus.execute(
             new GetCutiQuery(parseInt(req.params.id))
         );
-        const cuti = await this._commandBus.send(
+        await this._commandBus.send(
             new DeleteCutiCommand(parseInt(req.params.id))
         );
         if(dataCuti?.dokumen!==null){ //belum di tes lagi
@@ -176,7 +176,7 @@ export class CutiController {
         res.status(200).json({
             status: 200,
             message: "berhasil hapus pengajuan cuti",
-            data: cuti,
+            data: dataCuti,
             list: null,
             validation: [],
             log: [],
@@ -185,12 +185,7 @@ export class CutiController {
 
     @httpPost('/approval')
     async approval(@request() req: Request, @response() res: Response) {
-        await cutiApprovalSchema.validate({
-            "id": req.body.id,
-            "type": req.body.type,
-            "note": req.body.note,
-        }, { abortEarly: false });
-
+        await cutiApprovalSchema.validate(req.body, { abortEarly: false });
         const cuti = await this._commandBus.send(
             new ApprovalCutiCommand(
                 parseInt(req.body.id),

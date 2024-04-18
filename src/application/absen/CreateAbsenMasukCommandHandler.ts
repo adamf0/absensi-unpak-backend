@@ -1,10 +1,8 @@
-import { inject, injectable } from 'inversify';
+import { injectable } from 'inversify';
 import { ICommandHandler } from '../../infrastructure/abstractions/messaging/ICommandHandler';
 import { CreateAbsenMasukCommand } from './CreateAbsenMasukCommand';
 import { Absen } from '../../infrastructure/orm/Absen';
-import { AppDataSource } from '../../infrastructure/config/mysql';
-import { TYPES } from '../../infrastructure/types';
-import { DataSource, getConnection } from 'typeorm';
+import { getConnection } from 'typeorm';
 
 @injectable()
 export class CreateAbsenMasukCommandHandler implements ICommandHandler<CreateAbsenMasukCommand> {

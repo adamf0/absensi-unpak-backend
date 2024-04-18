@@ -5,15 +5,15 @@ import { TYPES } from '../../infrastructure/types';
 import { ICommandBus } from '../../infrastructure/abstractions/messaging/ICommandBus';
 import { IQueryBus } from '../../infrastructure/abstractions/messaging/IQueryBus';
 import { ILog } from '../../infrastructure/abstractions/messaging/ILog';
-import { CreateUserCommand } from '../../application/user/CreateUserCommand';
-import { UpdateUserCommand } from '../../application/user/UpdateUserCommand';
-import { DeleteUserCommand } from '../../application/user/DeleteUserCommand';
-import { GetAllUserQuery } from '../../application/user/GetAllUserQuery';
-import { GetUserQuery } from '../../application/user/GetUserQuery';
-import { userCreateSchema, userUpdateSchema } from '../../domain/validation/userSchema';
+import { penggunaCreateSchema, penggunaUpdateSchema } from '../../domain/validation/penggunaSchema';
+import { CreatePenggunaCommand } from '../../application/pengguna/CreatePenggunaCommand';
+import { GetAllPenggunaQuery } from '../../application/pengguna/GetAllPenggunaQuery';
+import { GetPenggunaQuery } from '../../application/pengguna/GetPenggunaQuery';
+import { UpdatePenggunaCommand } from '../../application/pengguna/UpdatePenggunaCommand';
+import { DeletePenggunaCommand } from '../../application/pengguna/DeletePenggunaCommand';
 
-@controller('/user')
-export class UserController {
+@controller('/pengguna')
+export class PenggunaController {
     constructor(
         @inject(TYPES.Log) private readonly _log: ILog,
         @inject(TYPES.CommandBus) private readonly _commandBus: ICommandBus,
@@ -27,9 +27,12 @@ export class UserController {
         const startIndex = (page - 1) * pageSize;
         const endIndex = page * pageSize;
 
-        const [data, count] = await this._queryBus.execute(
-            new GetAllUserQuery(pageSize, startIndex)
+        let [data, count] = await this._queryBus.execute(
+            new GetAllPenggunaQuery(pageSize, startIndex)
         );
+        data.map((d)=>{
+            d.dokumen = d.dokumen==null? null:`${req.protocol}://${req.headers.host}/static/pengguna/${d.dokumen}`
+        })
         const totalPage = Math.ceil(count / pageSize);
         const nextPage = (page + 1 > totalPage) ? null : page + 1;
         const prevPage = (page - 1 < 1) || (totalPage < page) ? null : page - 1;
@@ -60,14 +63,14 @@ export class UserController {
 
     @httpGet('/:id')
     async detail(@request() req: Request, @response() res: Response) {
-        const user = await this._queryBus.execute(
-            new GetUserQuery(parseInt(req.params.id))
+        let pengguna = await this._queryBus.execute(
+            new GetPenggunaQuery(parseInt(req.params.id))
         );
 
         res.status(200).json({
             status: 200,
             message: null,
-            data: user,
+            data: pengguna,
             list: null,
             validation: [],
             log: [],
@@ -76,20 +79,22 @@ export class UserController {
 
     @httpPost('/create')
     async store(@request() req: Request, @response() res: Response) {
-        await userCreateSchema.validate(req.body, { abortEarly: false });
-        const user = await this._commandBus.send(
-            new CreateUserCommand(
-                req.body.nama,
+        await penggunaCreateSchema.validate(req.body, { abortEarly: false })
+
+        const pengguna = await this._commandBus.send(
+            new CreatePenggunaCommand(
                 req.body.username,
                 req.body.password,
+                req.body.nama,
                 req.body.level,
+                req.body.nidn,
             )
         );
 
         res.status(200).json({
             status: 200,
-            message: "berhasil mengajukan user",
-            data: user,
+            message: "berhasil menambahkan pengguna",
+            data: pengguna,
             list: null,
             validation: [],
             log: [],
@@ -98,23 +103,22 @@ export class UserController {
 
     @httpPost('/update')
     async update(@request() req: Request, @response() res: Response) {
-        console.log(req.body)
-        await userUpdateSchema.validate(req.body, { abortEarly: false });
-
-        const user = await this._commandBus.send(
-            new UpdateUserCommand(
+        await penggunaUpdateSchema.validate(req.body, { abortEarly: false })
+        const pengguna = await this._commandBus.send(
+            new UpdatePenggunaCommand(
                 parseInt(req.body.id),
-                req.body.nama,
                 req.body.username,
                 req.body.password,
+                req.body.nama,
                 req.body.level,
+                req.body.nidn,
             )
         );
 
         res.status(200).json({
             status: 200,
-            message: "berhasil update data user",
-            data: user,
+            message: "berhasil update data pengguna",
+            data: pengguna,
             list: null,
             validation: [],
             log: [],
@@ -123,14 +127,17 @@ export class UserController {
 
     @httpGet('/delete/:id')
     async delete(@request() req: Request, @response() res: Response) {
-        const user = await this._commandBus.send(
-            new DeleteUserCommand(parseInt(req.params.id))
+        const dataPengguna = await this._queryBus.execute(
+            new GetPenggunaQuery(parseInt(req.params.id))
+        );
+        await this._queryBus.execute(
+            new DeletePenggunaCommand(parseInt(req.params.id))
         );
 
         res.status(200).json({
             status: 200,
-            message: "berhasil hapus pengajuan user",
-            data: user,
+            message: "berhasil hapus pengguna",
+            data: dataPengguna,
             list: null,
             validation: [],
             log: [],

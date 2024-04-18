@@ -1,11 +1,8 @@
-import { inject, injectable } from 'inversify';
+import { injectable } from 'inversify';
 import { IQueryHandler } from '../../infrastructure/abstractions/messaging/IQueryHandler';
-import { TYPES } from '../../infrastructure/types';
 import { CountAllIzinOnWaitingQuery } from './CountAllIzinOnWaitingQuery';
-import { DataSource, In, getConnection } from 'typeorm';
-import { AppDataSource } from '../../infrastructure/config/mysql';
+import { In, getConnection } from 'typeorm';
 import { Izin } from '../../infrastructure/orm/Izin';
-import { count } from 'console';
 
 @injectable()
 export class CountAllIzinOnWaitingQueryHandler implements IQueryHandler<CountAllIzinOnWaitingQuery, any> {

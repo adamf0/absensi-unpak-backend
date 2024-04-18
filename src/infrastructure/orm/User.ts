@@ -1,5 +1,5 @@
 import "reflect-metadata"
-import { Entity, PrimaryGeneratedColumn, Column, Index, JoinColumn, OneToOne } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
 import { UserRole } from "../../domain/enum/UserRole"
 import { Dosen } from "./Dosen"
 

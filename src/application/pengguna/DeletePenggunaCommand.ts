@@ -1,6 +1,6 @@
 import { Command } from "../../infrastructure/abstractions/messaging/Command";
 
-export class DeleteUserCommand extends Command {
+export class DeletePenggunaCommand extends Command {
     public id: number;
     
     constructor(

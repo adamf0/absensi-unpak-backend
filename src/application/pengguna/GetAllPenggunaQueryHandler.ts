@@ -1,12 +1,12 @@
 import { injectable } from 'inversify';
 import { IQueryHandler } from '../../infrastructure/abstractions/messaging/IQueryHandler';
-import { GetAllCutiQuery } from './GetAllCutiQuery';
+import { GetAllPenggunaQuery } from './GetAllPenggunaQuery';
 import { getConnection } from 'typeorm';
-import { Cuti } from '../../infrastructure/orm/Cuti';
+import { User } from '../../infrastructure/orm/User';
 
 @injectable()
-export class GetAllCutiQueryHandler implements IQueryHandler<GetAllCutiQuery, any> {
-  queryToHandle = GetAllCutiQuery.name;
+export class GetAllPenggunaQueryHandler implements IQueryHandler<GetAllPenggunaQuery, any> {
+  queryToHandle = GetAllPenggunaQuery.name;
   // _db: DataSource;
 
   constructor(
@@ -15,16 +15,13 @@ export class GetAllCutiQueryHandler implements IQueryHandler<GetAllCutiQuery, an
     // this._db = AppDataSource.initialize();
   }
 
-  async execute(query: GetAllCutiQuery) {
+  async execute(query: GetAllPenggunaQuery) {
     const _db = await getConnection("default");
-    return await _db.getRepository(Cuti).findAndCount(
+    return await _db.getRepository(User).findAndCount(
       {
         // where: { name: Like('%' + keyword + '%') }, order: { name: "DESC" },
         take: query.take,
-        skip: query.skip,
-        relations: {
-          JenisCuti: true,
-        },
+        skip: query.skip
       },
     )
   }

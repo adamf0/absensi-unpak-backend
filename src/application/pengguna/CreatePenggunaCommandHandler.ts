@@ -1,12 +1,12 @@
 import { injectable } from 'inversify';
 import { ICommandHandler } from '../../infrastructure/abstractions/messaging/ICommandHandler';
-import { ApprovalIzinCommand } from './ApprovalIzinCommand';
+import { CreatePenggunaCommand } from './CreatePenggunaCommand';
 import { getConnection } from 'typeorm';
-import { Izin } from '../../infrastructure/orm/Izin';
+import { User } from '../../infrastructure/orm/User';
 
 @injectable()
-export class ApprovalIzinCommandHandler implements ICommandHandler<ApprovalIzinCommand> {
-  commandToHandle: string = ApprovalIzinCommand.name;
+export class CreatePenggunaCommandHandler implements ICommandHandler<CreatePenggunaCommand> {
+  commandToHandle: string = CreatePenggunaCommand.name;
   // _db: DataSource;
 
   constructor(
@@ -15,18 +15,16 @@ export class ApprovalIzinCommandHandler implements ICommandHandler<ApprovalIzinC
     // this._db = AppDataSource.initialize();
   }
 
-  async handle(command: ApprovalIzinCommand) {
+  async handle(command: CreatePenggunaCommand) {
     const _db = await getConnection("default");
-    let izin = await _db.getRepository(Izin).findOneOrFail({
-        where: {
-          id: command.id
-        },
-        relations: {},
-    })
-    izin.status = command.type
-    izin.catatan = command.note
+    let pengguna  = new User();
+    pengguna.username = command.username;
+    pengguna.password = command.password;
+    pengguna.nama = command.nama;
+    pengguna.level = command.level;
+    pengguna.NIDN = command.nidn;
 
-    await _db.getRepository(Izin).save(izin);
+    await _db.getRepository(User).save(pengguna);
     // const application: Application = new Application(
     //   command.guid,
     //   command.jobId,
@@ -36,6 +34,6 @@ export class ApprovalIzinCommandHandler implements ICommandHandler<ApprovalIzinC
     //   command.currentPosition
     // ); es
 
-    return izin;
+    return pengguna;
   }
 }

@@ -1,8 +1,7 @@
-import { inject, injectable } from 'inversify';
+import { injectable } from 'inversify';
 import { IQueryHandler } from '../../infrastructure/abstractions/messaging/IQueryHandler';
-import { TYPES } from '../../infrastructure/types';
 import { GetAllIzinQuery } from './GetAllIzinQuery';
-import { DataSource, getConnection } from 'typeorm';
+import { getConnection } from 'typeorm';
 import { Izin } from '../../infrastructure/orm/Izin';
 
 @injectable()

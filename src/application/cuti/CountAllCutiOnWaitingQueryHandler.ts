@@ -1,11 +1,8 @@
-import { inject, injectable } from 'inversify';
+import { injectable } from 'inversify';
 import { IQueryHandler } from '../../infrastructure/abstractions/messaging/IQueryHandler';
-import { TYPES } from '../../infrastructure/types';
 import { CountAllCutiOnWaitingQuery } from './CountAllCutiOnWaitingQuery';
-import { DataSource, In, getConnection } from 'typeorm';
-import { AppDataSource } from '../../infrastructure/config/mysql';
+import { In, getConnection } from 'typeorm';
 import { Cuti } from '../../infrastructure/orm/Cuti';
-import { count } from 'console';
 
 @injectable()
 export class CountAllCutiOnWaitingQueryHandler implements IQueryHandler<CountAllCutiOnWaitingQuery, any> {
