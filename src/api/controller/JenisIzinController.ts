@@ -137,7 +137,7 @@ export class JenisIzinController {
         const dataJenisIzin = await this._queryBus.execute(
             new GetJenisIzinQuery(parseInt(req.params.id))
         );
-        await this._queryBus.execute(
+        await this._commandBus.send(
             new DeleteJenisIzinCommand(parseInt(req.params.id))
         );
 

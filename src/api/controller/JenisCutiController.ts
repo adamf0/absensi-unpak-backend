@@ -146,7 +146,7 @@ export class JenisCutiController {
         const dataJenisCuti = await this._queryBus.execute(
             new GetJenisCutiQuery(parseInt(req.params.id))
         );
-        await this._queryBus.execute(
+        await this._commandBus.send(
             new DeleteJenisCutiCommand(parseInt(req.params.id))
         );
 
