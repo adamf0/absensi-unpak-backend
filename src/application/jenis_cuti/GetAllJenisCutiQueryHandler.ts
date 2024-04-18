@@ -17,6 +17,15 @@ export class GetAllJenisCutiQueryHandler implements IQueryHandler<GetAllJenisCut
 
   async execute(query: GetAllJenisCutiQuery) {
     const _db = await getConnection("default");
-    return await _db.getRepository(JenisCuti).find()
+    return await (query.take == null && query.skip == null? 
+      _db.getRepository(JenisCuti).find():
+      _db.getRepository(JenisCuti).findAndCount(
+        {
+          // where: { name: Like('%' + keyword + '%') }, order: { name: "DESC" },
+          take: query.take,
+          skip: query.skip,
+        },
+      )
+    )
   }
 }

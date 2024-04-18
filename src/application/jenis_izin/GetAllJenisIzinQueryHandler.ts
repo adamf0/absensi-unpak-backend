@@ -17,6 +17,15 @@ export class GetAllJenisIzinQueryHandler implements IQueryHandler<GetAllJenisIzi
 
   async execute(query: GetAllJenisIzinQuery) {
     const _db = await getConnection("default");
-    return await _db.getRepository(JenisIzin).find()
+    return await (query.take == null && query.skip == null? 
+      _db.getRepository(JenisIzin).find():
+      _db.getRepository(JenisIzin).findAndCount(
+        {
+          // where: { name: Like('%' + keyword + '%') }, order: { name: "DESC" },
+          take: query.take,
+          skip: query.skip,
+        },
+      )
+    )
   }
 }

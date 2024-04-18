@@ -63,10 +63,18 @@ import { ApprovalCutiCommandHandler } from "./src/application/cuti/ApprovalCutiC
 import { ApprovalIzinCommandHandler } from "./src/application/izin/ApprovalIzinCommandHandler";
 import { CountAllIzinOnWaitingQueryHandler } from "./src/application/izin/CountAllIzinOnWaitingQueryHandler";
 import { CountAllCutiOnWaitingQueryHandler } from "./src/application/cuti/CountAllCutiOnWaitingQueryHandler";
-import { GetAllJenisIzinQueryHandler } from "./src/application/jenis_izin/GetAllJenisIzinQueryHandler";
 import { JenisIzinController } from "./src/api/controller/JenisIzinController";
 import { JenisIzin } from "./src/infrastructure/orm/JenisIzin";
 import { ValidationError } from "yup";
+import { CreateJenisCutiCommandHandler } from "./src/application/jenis_cuti/CreateJenisCutiCommandHandler";
+import { DeleteJenisCutiCommandHandler } from "./src/application/jenis_cuti/DeleteJenisCutiCommandHandler";
+import { GetJenisCutiQueryHandler } from "./src/application/jenis_cuti/GetJenisCutiQueryHandler";
+import { UpdateJenisCutiCommandHandler } from "./src/application/jenis_cuti/UpdateJenisCutiCommandHandler";
+import { CreateJenisIzinCommandHandler } from "./src/application/jenis_izin/CreateJenisIzinCommandHandler";
+import { DeleteJenisIzinCommandHandler } from "./src/application/jenis_izin/DeleteJenisIzinCommandHandler";
+import { GetAllJenisIzinQueryHandler } from "./src/application/jenis_izin/GetAllJenisIzinQueryHandler";
+import { GetJenisIzinQueryHandler } from "./src/application/jenis_izin/GetJenisIzinQueryHandler";
+import { UpdateJenisIzinCommandHandler } from "./src/application/jenis_izin/UpdateJenisIzinCommandHandler";
 var cron = require('node-cron');
 
 dotenv.config();
@@ -196,9 +204,17 @@ container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetPenggunaQueryHan
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllPenggunaQueryHandler);
 //</user>
 //<jenis_cuti>
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(CreateJenisCutiCommandHandler);
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(UpdateJenisCutiCommandHandler);
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(DeleteJenisCutiCommandHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetJenisCutiQueryHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllJenisCutiQueryHandler);
 //</jenis_cuti>
 //<jenis_izin>
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(CreateJenisIzinCommandHandler);
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(UpdateJenisIzinCommandHandler);
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(DeleteJenisIzinCommandHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetJenisIzinQueryHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllJenisIzinQueryHandler);
 //</jenis_izin>
 //<izin>
