@@ -75,6 +75,11 @@ import { DeleteJenisIzinCommandHandler } from "./src/application/jenis_izin/Dele
 import { GetAllJenisIzinQueryHandler } from "./src/application/jenis_izin/GetAllJenisIzinQueryHandler";
 import { GetJenisIzinQueryHandler } from "./src/application/jenis_izin/GetJenisIzinQueryHandler";
 import { UpdateJenisIzinCommandHandler } from "./src/application/jenis_izin/UpdateJenisIzinCommandHandler";
+import { Pengguna } from "./src/infrastructure/orm/Pengguna";
+import { GetAbsenByFilterQueryHandler } from "./src/application/absen/GetAbsenByFilterQueryHandler";
+import { InfoController } from "./src/api/controller/InfoController";
+import { CountAllCutiQueryHandler } from "./src/application/cuti/CountAllCutiQueryHandler";
+import { CountAllIzinQueryHandler } from "./src/application/cuti/CountAllIzinQueryHandler";
 var cron = require('node-cron');
 
 dotenv.config();
@@ -170,7 +175,7 @@ async function connect(){
             username: "root",
             password: "",
             database: "unpak_simak",
-            entities: [Dosen,UserSimak],
+            entities: [Dosen,UserSimak,Pengguna],
             synchronize: false
         },
     ])
@@ -183,6 +188,7 @@ container.bind<IQueryBus<IQuery>>(TYPES.QueryBus).toConstantValue(new QueryBus()
 //<absen>
 container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(CreateAbsenMasukCommandHandler);
 container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(CreateAbsenKeluarCommandHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAbsenByFilterQueryHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAbsenQueryHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllAbsenByNIDNYearMonthQueryHandler);
 //</absen>
@@ -194,6 +200,7 @@ container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(ApprovalCutiC
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetCutiQueryHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllCutiQueryHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllCutiByNIDNYearMonthQueryHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(CountAllCutiQueryHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(CountAllCutiOnWaitingQueryHandler);
 //</cuti>
 //<user>
@@ -225,6 +232,7 @@ container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(DeleteIzinCom
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetIzinQueryHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllIzinQueryHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllIzinByNIDNYearMonthQueryHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(CountAllIzinQueryHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(CountAllIzinOnWaitingQueryHandler);
 //</izin>
 //<calendar>
@@ -250,28 +258,78 @@ container.bind<JenisIzinController>(TYPES.Controller).to(JenisIzinController);
 container.bind<CalendarController>(TYPES.Controller).to(CalendarController);
 container.bind<IzinController>(TYPES.Controller).to(IzinController);
 container.bind<PenggunaController>(TYPES.Controller).to(PenggunaController);
+container.bind<InfoController>(TYPES.Controller).to(InfoController);
 container.bind<AuthController>(TYPES.Controller).to(AuthController);
 
 const api: Application = container.get<Application>(TYPES.ApiServer);
 api.listen(port, async () =>
     console.log('The application is running in %s:%s', process.env.base_url, port)
 );
+// cron.schedule('* * * * *', async () => {
+//     console.log('Running a job absen keluar');
+//     try {
+//         // const _db = await getConnection("cron");
+//         // if(_db.isInitialized){
+//         //     const result = await _db.createQueryBuilder()
+//         //         .update(Absen)
+//         //         .set({ absen_keluar: () => 'CURRENT_TIMESTAMP' })
+//         //         .where('tanggal = CURDATE() and absen_keluar is null')
+//         //         .execute();
+//         //     console.log(result);
+//         // }
+//         const _dbSimak = await getConnection("simak");
+//         const _dbLocal = await getConnection("default");
+//         if(_dbSimak.isInitialized && _dbLocal.isInitialized){
+//             const listDosen = await _dbSimak.getRepository(Dosen).find();
+//             const dateNow = new Date().toISOString().slice(0, 10);
+//             const existingAbsen = await _dbLocal.getRepository(Absen).find({
+//                 where: {
+//                     tanggal: dateNow,
+//                 },
+//                 select: ['nidn'],
+//             });
+//             const existingNidnSet = new Set(existingAbsen.map(absen => absen.nidn));
+//             const absenInstances = listDosen
+//                 .filter(dosen => !existingNidnSet.has(dosen.NIDN))
+//                 .map(dosen => {
+//                     const absen = new Absen();
+//                     absen.nidn = dosen.NIDN;
+//                     absen.tanggal = dateNow;
+//                     return absen;
+//                 });
+
+//             await _dbLocal.getRepository(Absen)
+//                 .createQueryBuilder()
+//                 .insert()
+//                 .values(absenInstances)
+//                 .orIgnore()
+//                 .execute();
+//         }
+//         // db.destroy()
+//     } catch (error) {
+//         console.error('Error occurred:', error);
+//     }
+// }, {
+//     scheduled: true,
+//     timezone: "Asia/Jakarta"
+// });
+
 cron.schedule('* * * * *', async () => {
     console.log('Running a job absen keluar');
-    try {
-        const _db = await getConnection("cron");
-        if(_db.isInitialized){
-            const result = await _db.createQueryBuilder()
-                .update(Absen)
-                .set({ absen_keluar: () => 'CURRENT_TIMESTAMP' })
-                .where('tanggal = CURDATE() and absen_keluar is null')
-                .execute();
-            console.log(result);
-        }
-        // db.destroy()
-    } catch (error) {
-        console.error('Error occurred:', error);
-    }
+    // try {
+    //     const _db = await getConnection("cron");
+    //     if(_db.isInitialized){
+    //         const result = await _db.createQueryBuilder()
+    //             .update(Absen)
+    //             .set({ absen_keluar: () => 'CURRENT_TIMESTAMP' })
+    //             .where('tanggal = CURDATE() and absen_masuk is not null and absen_keluar is null')
+    //             .execute();
+    //         console.log(result);
+    //     }
+    //     // db.destroy()
+    // } catch (error) {
+    //     console.error('Error occurred:', error);
+    // }
 }, {
     scheduled: true,
     timezone: "Asia/Jakarta"

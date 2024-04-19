@@ -129,12 +129,12 @@ export class AbsenController {
                 throw new InvalidRequest("terdaftar_izin", `hari ini anda sudah izin dengan tujuan "${izin.tujuan}"`);
             }
 
-            const jarak = distance(req.body.lat, req.body.long, -6.599398, 106.812367, "Meter");
-            if (!(jarak >= 0 && jarak <= 800)) {
-                throw new InvalidRequest("luar_radius", `jaran anda dengan unpak sejauh ${jarak} meter, itu berada di luar lokasi radius absensi (150 meter)`);
-            }
+            // const jarak = distance(req.body.lat, req.body.long, -6.599398, 106.812367, "Meter");
+            // if (!(jarak >= 0 && jarak <= 800)) {
+            //     throw new InvalidRequest("luar_radius", `jaran anda dengan unpak sejauh ${jarak} meter, itu berada di luar lokasi radius absensi (150 meter)`);
+            // }
             absensi = await this._commandBus.send(
-                new CreateAbsenMasukCommand(req.body.nidn, req.body.tanggal, req.body.absen_masuk)
+                new CreateAbsenMasukCommand(req.body.nidn, req.body.tanggal, req.body.absen_masuk, req.body.keterangan)
             );
             message = "berhasil absen masuk";
         } else if (req.params.tipe == "keluar") {
@@ -144,7 +144,7 @@ export class AbsenController {
             const absen = await this._queryBus.execute(query);
             if (absen.absen_keluar == null) {
                 absensi = await this._commandBus.send(
-                    new CreateAbsenKeluarCommand(absen.nidn, absen.tanggal, req.body.absen_keluar)
+                    new CreateAbsenKeluarCommand(absen.nidn, absen.tanggal, req.body.absen_keluar, req.body.keterangan)
                 );
                 message = "berhasil absen keluar";
             } else {

@@ -17,10 +17,14 @@ export class CreateAbsenMasukCommandHandler implements ICommandHandler<CreateAbs
 
   async handle(command: CreateAbsenMasukCommand) {
     const _db = await getConnection("default");
-    const absen = new Absen();
+    const absen = await _db.getRepository(Absen).findOneBy({
+      nidn: command.nidn,
+      tanggal: command.tanggal,
+    })
     absen.nidn = command.nidn;
     absen.tanggal = command.tanggal;
     absen.absen_masuk = command.tanggal + " " +command.absen_masuk;
+    absen.catatan_telat = command.catatan;
     await _db.getRepository(Absen).save(absen);
 
     // const application: Application = new Application(

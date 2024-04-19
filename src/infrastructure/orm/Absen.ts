@@ -15,9 +15,15 @@ export class Absen {
     @Column("date")
     tanggal: string
 
-    @Column("datetime")
+    @Column("datetime",{nullable: true})
     absen_masuk: string
 
     @Column("datetime",{nullable: true})
     absen_keluar: string
+
+    @Column("text",{nullable: true})
+    catatan_telat: string
+
+    @Column("text",{nullable: true})
+    catatan_pulang: string
 }
