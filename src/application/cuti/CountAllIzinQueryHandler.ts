@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import { IQueryHandler } from '../../infrastructure/abstractions/messaging/IQueryHandler';
 import { CountAllIzinQuery } from './CountAllIzinQuery';
-import { In, getConnection } from 'typeorm';
+import { Between, FindManyOptions, In, getConnection } from 'typeorm';
 import { Izin } from '../../infrastructure/orm/Izin';
 
 @injectable()
@@ -17,6 +17,21 @@ export class CountAllIzinQueryHandler implements IQueryHandler<CountAllIzinQuery
 
   async execute(query: CountAllIzinQuery) {
     const _db = await getConnection("default");
-    return await _db.getRepository(Izin).findAndCount()
+    let data: FindManyOptions<Izin> = {
+      where: { nidn: query.nidn }
+    }
+        
+    if(query.tanggal_mulai && query.tanggal_berakhir){
+      data = Object.assign(data, {
+        ...data.where,
+        tanggal: Between(query.tanggal_mulai, query.tanggal_berakhir)
+      })
+    } else if(query.tanggal_mulai){
+      data = Object.assign({
+        ...data.where,
+        tanggal: query.tanggal_mulai
+      })
+    }
+    return await _db.getRepository(Izin).findAndCount(data)
   }
 }

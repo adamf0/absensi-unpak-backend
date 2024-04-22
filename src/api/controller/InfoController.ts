@@ -21,43 +21,44 @@ export class InfoController {
 
 
     isLate(absen){
-        const currentTime = (absen == null ? moment() : moment(absen.absen_masuk)).tz('Asia/Jakarta');
+        const currentTime = moment(absen.absen_masuk).tz('Asia/Jakarta');
         const absenTime = moment("08:00", 'HH:mm').tz('Asia/Jakarta');
         return currentTime.isAfter(absenTime);
     }
 
     is8Hour(absen){
-        const masuk = moment(absen).tz('Asia/Jakarta')
+        const masuk = moment(absen.absen_masuk).tz('Asia/Jakarta')
         return masuk.isAfter(masuk.startOf('day').add(8, 'hours'));
     }
 
     @httpGet('/')
     async index(@request() req: Request, @response() res: Response) {
-        const nidn = String(req.query?.nidn)
-        const tanggal_awal = String(req.query?.tanggal_awal)
-        const tanggal_akhir = String(req.query?.tanggal_akhir)
+        let nidn, tanggal_awal, tanggal_akhir
+        nidn = req.query?.nidn==undefined || req.query?.nidn=="null"? null:req.query.nidn
+        tanggal_awal = req.query?.tanggal_awal==undefined || req.query?.tanggal_awal=="null"? null:req.query?.tanggal_awal
+        tanggal_akhir = req.query?.tanggal_akhir==undefined || req.query?.tanggal_akhir=="null"? null:req.query?.tanggal_akhir
 
         const [listCuti, countCuti] = await this._queryBus.execute(
-            new CountAllCutiQuery()
+            new CountAllCutiQuery(nidn, tanggal_awal, tanggal_akhir)
         );
         const [listIzin, countIzin] = await this._queryBus.execute(
-            new CountAllIzinQuery()
+            new CountAllIzinQuery(nidn, tanggal_awal, tanggal_akhir)
         );
         const absen = await this._queryBus.execute(
-            new GetAbsenByFilterQuery(nidn, ["undefined","null"].includes(tanggal_awal)? null:tanggal_awal, ["undefined","null"].includes(tanggal_akhir)? null:tanggal_akhir)
+            new GetAbsenByFilterQuery(nidn, tanggal_awal, tanggal_akhir)
         );
 
         res.status(200).json({
             status: 200,
-            message: "berhasil mengajukan cuti",
+            message: null,
             data: {
                 absen:{
                     masuk:absen.filter(a=>a.absen_masuk!=null).length,
-                    tidak_masuk:absen.filter(a=>a.absen_masuk==null && a.absen_keluar==null).length,
-                    lebih_8jam:absen.filter(a=>this.is8Hour(a)).length,
-                    kurang_8jam:absen.filter(a=>!this.is8Hour(a)).length,
-                    tepat_waktu:absen.filter(a=>!this.isLate(a)).length,
-                    telat:absen.filter(a=>this.isLate(a)).length,
+                    tidak_masuk:absen.filter(a=>a.absen_masuk==null && a.absen_keluar==null).length, //mundur 1 hari
+                    lebih_8jam:absen.filter(a=>a.absen_masuk!=null && this.is8Hour(a)).length,
+                    kurang_8jam:absen.filter(a=>a.absen_masuk!=null && !this.is8Hour(a)).length,
+                    tepat_waktu:absen.filter(a=>a.absen_masuk!=null && !this.isLate(a)).length,
+                    telat:absen.filter(a=>a.absen_masuk!=null && this.isLate(a)).length,
                 },
                 izin:{
                     total:countIzin,

@@ -17,15 +17,17 @@ export class GetAllCutiQueryHandler implements IQueryHandler<GetAllCutiQuery, an
 
   async execute(query: GetAllCutiQuery) {
     const _db = await getConnection("default");
-    return await _db.getRepository(Cuti).findAndCount(
-      {
-        // where: { name: Like('%' + keyword + '%') }, order: { name: "DESC" },
-        take: query.take,
-        skip: query.skip,
-        relations: {
-          JenisCuti: true,
-        },
+    let data = {
+      take: query.take,
+      skip: query.skip,
+      relations: {
+        JenisCuti: true,
       },
-    )
+    }
+
+    if(query.nidn!=null){
+      Object.assign(data, {where: { nidn: query.nidn }})
+    }
+    return await _db.getRepository(Cuti).findAndCount(data)
   }
 }

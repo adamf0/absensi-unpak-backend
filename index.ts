@@ -265,54 +265,45 @@ const api: Application = container.get<Application>(TYPES.ApiServer);
 api.listen(port, async () =>
     console.log('The application is running in %s:%s', process.env.base_url, port)
 );
-// cron.schedule('* * * * *', async () => {
-//     console.log('Running a job absen keluar');
-//     try {
-//         // const _db = await getConnection("cron");
-//         // if(_db.isInitialized){
-//         //     const result = await _db.createQueryBuilder()
-//         //         .update(Absen)
-//         //         .set({ absen_keluar: () => 'CURRENT_TIMESTAMP' })
-//         //         .where('tanggal = CURDATE() and absen_keluar is null')
-//         //         .execute();
-//         //     console.log(result);
-//         // }
-//         const _dbSimak = await getConnection("simak");
-//         const _dbLocal = await getConnection("default");
-//         if(_dbSimak.isInitialized && _dbLocal.isInitialized){
-//             const listDosen = await _dbSimak.getRepository(Dosen).find();
-//             const dateNow = new Date().toISOString().slice(0, 10);
-//             const existingAbsen = await _dbLocal.getRepository(Absen).find({
-//                 where: {
-//                     tanggal: dateNow,
-//                 },
-//                 select: ['nidn'],
-//             });
-//             const existingNidnSet = new Set(existingAbsen.map(absen => absen.nidn));
-//             const absenInstances = listDosen
-//                 .filter(dosen => !existingNidnSet.has(dosen.NIDN))
-//                 .map(dosen => {
-//                     const absen = new Absen();
-//                     absen.nidn = dosen.NIDN;
-//                     absen.tanggal = dateNow;
-//                     return absen;
-//                 });
+cron.schedule('* * * * *', async () => {
+    console.log('Running a job absen keluar');
+    try {
+        const _dbSimak = await getConnection("simak");
+        const _dbLocal = await getConnection("default");
+        if(_dbSimak.isInitialized && _dbLocal.isInitialized){
+            const listDosen = await _dbSimak.getRepository(Dosen).find();
+            const dateNow = new Date().toISOString().slice(0, 10);
+            const existingAbsen = await _dbLocal.getRepository(Absen).find({
+                where: {
+                    tanggal: dateNow,
+                },
+                select: ['nidn'],
+            });
+            const existingNidnSet = new Set(existingAbsen.map(absen => absen.nidn));
+            const absenInstances = listDosen
+                .filter(dosen => !existingNidnSet.has(dosen.NIDN))
+                .map(dosen => {
+                    const absen = new Absen();
+                    absen.nidn = dosen.NIDN;
+                    absen.tanggal = dateNow;
+                    return absen;
+                });
 
-//             await _dbLocal.getRepository(Absen)
-//                 .createQueryBuilder()
-//                 .insert()
-//                 .values(absenInstances)
-//                 .orIgnore()
-//                 .execute();
-//         }
-//         // db.destroy()
-//     } catch (error) {
-//         console.error('Error occurred:', error);
-//     }
-// }, {
-//     scheduled: true,
-//     timezone: "Asia/Jakarta"
-// });
+            await _dbLocal.getRepository(Absen)
+                .createQueryBuilder()
+                .insert()
+                .values(absenInstances)
+                .orIgnore()
+                .execute();
+        }
+        // db.destroy()
+    } catch (error) {
+        console.error('Error occurred:', error);
+    }
+}, {
+    scheduled: true,
+    timezone: "Asia/Jakarta"
+});
 
 cron.schedule('* * * * *', async () => {
     console.log('Running a job absen keluar');

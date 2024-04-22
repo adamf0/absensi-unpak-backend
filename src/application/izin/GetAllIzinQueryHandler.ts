@@ -17,12 +17,18 @@ export class GetAllIzinQueryHandler implements IQueryHandler<GetAllIzinQuery, an
 
   async execute(query: GetAllIzinQuery) {
     const _db = await getConnection("default");
-    return await _db.getRepository(Izin).findAndCount(
-        {
-            // where: { name: Like('%' + keyword + '%') }, order: { name: "DESC" },
-            take: query.take,
-            skip: query.skip
-        }
-    )
+    let data = {
+      take: query.take,
+      skip: query.skip,
+      relations: {
+        JenisIzin: true,
+      },
+    }
+
+    if(query.nidn!=null){
+      Object.assign(data, {where: { nidn: query.nidn }})
+    }
+    
+    return await _db.getRepository(Izin).findAndCount(data)
   }
 }

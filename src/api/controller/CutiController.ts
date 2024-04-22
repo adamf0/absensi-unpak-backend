@@ -28,13 +28,15 @@ export class CutiController {
 
     @httpGet('/')
     async index(@request() req: Request, @response() res: Response) {
-        const page = parseInt(String(req.query?.page ?? "1"));
-        const pageSize = parseInt(String(req.query?.pageSize ?? "10"));
-        const startIndex = (page - 1) * pageSize;
-        const endIndex = page * pageSize;
+        let nidn,page,pageSize,startIndex,endIndex
+        nidn = req.query?.nidn==undefined || req.query?.nidn=="null"? null:req.query.nidn
+        page = req.query?.page==undefined || req.query?.page=="null"? null:parseInt(String(req.query?.page ?? "1"))
+        pageSize = req.query?.pageSize==undefined || req.query?.pageSize=="null"? null:parseInt(String(req.query?.pageSize ?? "10"))
+        startIndex = (page - 1) * pageSize;
+        endIndex = page * pageSize;
 
         let [data, count] = await this._queryBus.execute(
-            new GetAllCutiQuery(pageSize, startIndex)
+            new GetAllCutiQuery(pageSize, startIndex, ["undefined","null"].includes(nidn)? null:nidn)
         );
         data.map((d)=>{
             d.dokumen = d.dokumen==null? null:`${req.protocol}://${req.headers.host}/static/cuti/${d.dokumen}`

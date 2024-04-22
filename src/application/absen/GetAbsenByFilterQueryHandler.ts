@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import { IQueryHandler } from '../../infrastructure/abstractions/messaging/IQueryHandler';
 import { GetAbsenByFilterQuery } from './GetAbsenByFilterQuery';
-import { Between, getConnection } from 'typeorm';
+import { Between, FindManyOptions, getConnection } from 'typeorm';
 import { Absen } from '../../infrastructure/orm/Absen';
 
 @injectable()
