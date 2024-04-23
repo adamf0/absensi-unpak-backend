@@ -25,7 +25,7 @@ export class User {
     })
     level: string
 
-    @Column({length: 50, type: "varchar", unique: false})
+    @Column({length: 50, type: "varchar", unique: false, nullable: true})
     NIDN: string
 
     // @OneToOne(() => Dosen, Dosen => Dosen.User, { //masih bermasalah relasi beda koneksi
