@@ -10,6 +10,7 @@ import { CountAllCutiQuery } from '../../application/cuti/CountAllCutiQuery';
 import { CountAllIzinQuery } from '../../application/cuti/CountAllIzinQuery';
 import moment from 'moment';
 import 'moment-timezone';
+import { logger } from '../../infrastructure/config/logger';
 
 @controller('/info')
 export class InfoController {
@@ -45,33 +46,65 @@ export class InfoController {
         const [listIzin, countIzin] = await this._queryBus.execute(
             new CountAllIzinQuery(nidn, nip, tanggal_awal, tanggal_akhir)
         );
-        const absen = await this._queryBus.execute(
+        const [absen, _] = await this._queryBus.execute(
             new GetAbsenByFilterQuery(nidn, nip, tanggal_awal, tanggal_akhir)
         );
 
+        const absen_masuk = (absen??[]).filter(a => a.absen_masuk != null).length
+        const absen_tidak_masuk = (absen??[]).filter(a => a.absen_masuk == null && a.absen_keluar == null).length
+        const absen_8jam = (absen??[]).filter(a => a.absen_masuk != null && this.is8Hour(a)).length
+        const absen_kurang8jam = (absen??[]).filter(a => a.absen_masuk != null && !this.is8Hour(a)).length
+        const absen_tepat = (absen??[]).filter(a => a.absen_masuk != null && !this.isLate(a)).length
+        const absen_telat = (absen??[]).filter(a => a.absen_masuk != null && this.isLate(a)).length
+
+        const izin_tunggu = (listIzin??[]).filter(izin => izin.status == "menunggu" || izin.status == "").length
+        const izin_tolak = (listIzin??[]).filter(izin => izin.status == "tolak").length
+        const izin_terima = (listIzin??[]).filter(izin => izin.status == "terima").length
+
+        const cuti_tunggu = (listCuti??[]).filter(izin => izin.status == "menunggu" || izin.status == "").length
+        const cuti_tolak = (listCuti??[]).filter(izin => izin.status == "tolak").length
+        const cuti_terima = (listCuti??[]).filter(izin => izin.status == "terima").length
+
+        logger.info({
+            absen:absen,
+            absen_masuk:absen_masuk,
+            absen_tidak_masuk:absen_tidak_masuk,
+            absen_8jam:absen_8jam,
+            absen_kurang8jam:absen_kurang8jam,
+            absen_tepat:absen_tepat,
+            absen_telat:absen_telat,
+
+            izin_tunggu:izin_tunggu,
+            izin_tolak:izin_tolak,
+            izin_terima:izin_terima,
+
+            cuti_tunggu:cuti_tunggu,
+            cuti_tolak:cuti_tolak,
+            cuti_terima:cuti_terima,
+        })
         res.status(200).json({
             status: 200,
             message: null,
             data: {
                 absen: {
-                    masuk: (absen??[]).filter(a => a.absen_masuk != null).length,
-                    tidak_masuk: (absen??[]).filter(a => a.absen_masuk == null && a.absen_keluar == null).length, //mundur 1 hari
-                    lebih_8jam: (absen??[]).filter(a => a.absen_masuk != null && this.is8Hour(a)).length,
-                    kurang_8jam: (absen??[]).filter(a => a.absen_masuk != null && !this.is8Hour(a)).length,
-                    tepat_waktu: (absen??[]).filter(a => a.absen_masuk != null && !this.isLate(a)).length,
-                    telat: (absen??[]).filter(a => a.absen_masuk != null && this.isLate(a)).length,
+                    masuk: absen_masuk,
+                    tidak_masuk: absen_tidak_masuk, //mundur 1 hari
+                    lebih_8jam: absen_8jam,
+                    kurang_8jam: absen_kurang8jam,
+                    tepat_waktu: absen_tepat,
+                    telat: absen_telat,
                 },
                 izin: {
                     total: countIzin,
-                    menunggu: (listIzin??[]).filter(izin => izin.status == "menunggu" || izin.status == "").length,
-                    tolak: (listIzin??[]).filter(izin => izin.status == "tolak").length,
-                    terima: (listIzin??[]).filter(izin => izin.status == "terima").length,
+                    menunggu: izin_tunggu,
+                    tolak: izin_tolak,
+                    terima: izin_terima,
                 },
                 cuti: {
                     total: countCuti,
-                    menunggu: (listCuti??[]).filter(cuti => cuti.status == "menunggu" || cuti.status == "").length,
-                    tolak: (listCuti??[]).filter(cuti => cuti.status == "tolak").length,
-                    terima: (listCuti??[]).filter(cuti => cuti.status == "terima").length,
+                    menunggu: cuti_tunggu,
+                    tolak: cuti_tolak,
+                    terima: cuti_terima,
                 },
             },
             list: null,
