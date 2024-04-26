@@ -1,8 +1,9 @@
 import { injectable } from 'inversify';
 import { IQueryHandler } from '../../infrastructure/abstractions/messaging/IQueryHandler';
 import { GetAllIzinByNIDNYearMonthQuery } from './GetAllIzinByNIDNYearMonthQuery';
-import { Like, getConnection } from 'typeorm';
+import { FindManyOptions, Like, getConnection } from 'typeorm';
 import { Izin } from '../../infrastructure/orm/Izin';
+import { logger } from '../../infrastructure/config/logger';
 
 @injectable()
 export class GetAllIzinByNIDNYearMonthQueryHandler implements IQueryHandler<GetAllIzinByNIDNYearMonthQuery, any> {
@@ -16,12 +17,27 @@ export class GetAllIzinByNIDNYearMonthQueryHandler implements IQueryHandler<GetA
   }
 
   async execute(query: GetAllIzinByNIDNYearMonthQuery) {
+    logger.info({payload:query})
     const _db = await getConnection("default");
-    return await _db.getRepository(Izin).find({
-      where:{
+    const data:FindManyOptions<Izin> = {}
+    if(query.nidn){
+      const filter = {...data, where:{
         nidn: query.nidn,
         tanggal_pengajuan: Like(`%${query.year_month}%`),
-      }
-    })
+      }}
+      const record = await _db.getRepository(Izin).find(filter)
+      logger.info({filter:filter, cuti:record})
+      return record
+    } else if(query.nip){
+      const filter = {...data, where:{
+        nip: query.nip,
+        tanggal_pengajuan: Like(`%${query.year_month}%`),
+      }}
+      const record = await _db.getRepository(Izin).find(filter)
+      logger.info({filter:filter, cuti:record})
+      return record
+    } else{
+      throw new Error("invalid GetAllIzinByNIDNYearMonthQuery")
+    }
   }
 }

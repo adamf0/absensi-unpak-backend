@@ -22,13 +22,17 @@ export class AbsenController {
         @inject(TYPES.QueryBus) private readonly _queryBus: IQueryBus
     ) { }
 
-    @httpGet('/check/:nidn/:tanggal')
+    @httpGet('/check/:type/:nidn_nip/:tanggal')
     async check(@request() req: Request, @response() res: Response) {
         let absensi = null;
         const year_month = req.params.tanggal.split('-').slice(0, 2).join('-');
 
         let list_cuti = await this._queryBus.execute(
-            new GetAllCutiByNIDNYearMonthQuery(req.params.nidn, year_month)
+            new GetAllCutiByNIDNYearMonthQuery(
+                req.params?.type=="nidn"? req.params?.nidn_nip:null, 
+                req.params?.type=="nip"? req.params?.nidn_nip:null, 
+                year_month
+            )
         );
         list_cuti = list_cuti.reduce((acc, item) => {
             for (let i = 0; i < item.lama_cuti; i++) {
@@ -41,7 +45,7 @@ export class AbsenController {
                     jenis_cuti: item.jenis_cuti,
                     JenisCuti: item.JenisCuti
                 };
-                if (req.params.tanggal == tanggal) {
+                if (item.status=="terima" && req.params.tanggal == tanggal) {
                     acc.push(cutiObj);
                 }
             }
@@ -54,10 +58,14 @@ export class AbsenController {
         }
 
         let list_izin = await this._queryBus.execute(
-            new GetAllIzinByNIDNYearMonthQuery(req.params.nidn, year_month)
+            new GetAllIzinByNIDNYearMonthQuery(
+                req.params?.type=="nidn"? req.params?.nidn_nip:null, 
+                req.params?.type=="nip"? req.params?.nidn_nip:null, 
+                year_month
+            )
         );
         list_izin = list_izin.reduce((acc, item) => {
-            if (req.params.tanggal == new Date(item.tanggal_pengajuan).toISOString().split('T')[0]) {
+            if (item.status=="terima" && req.params.tanggal == new Date(item.tanggal_pengajuan).toISOString().split('T')[0]) {
                 acc.push(item);
             }
             return acc
@@ -67,7 +75,11 @@ export class AbsenController {
             throw new InvalidRequest("terdaftar_izin", `hari ini anda sudah izin dengan tujuan "${izin.tujuan}"`);
         }
 
-        const query: GetAbsenQuery = new GetAbsenQuery(req.params.nidn, req.params.tanggal);
+        const query: GetAbsenQuery = new GetAbsenQuery(
+            req.params?.type=="nidn"? req.params?.nidn_nip:null, 
+            req.params?.type=="nip"? req.params?.nidn_nip:null, 
+            req.params.tanggal
+        );
         absensi = await this._queryBus.execute(query);
 
         res.status(200).json({
@@ -89,7 +101,7 @@ export class AbsenController {
             const year_month = req.body.tanggal.split('-').slice(0, 2).join('-');
 
             let list_cuti = await this._queryBus.execute(
-                new GetAllCutiByNIDNYearMonthQuery(req.body.nidn, year_month)
+                new GetAllCutiByNIDNYearMonthQuery(req.body?.nidn, req.body?.nip, year_month)
             );
             list_cuti = list_cuti.reduce((acc, item) => {
                 for (let i = 0; i < item.lama_cuti; i++) {
@@ -102,7 +114,7 @@ export class AbsenController {
                         jenis_cuti: item.jenis_cuti,
                         JenisCuti: item.JenisCuti
                     };
-                    if (req.body.tanggal == tanggal) {
+                    if (item.status=="terima" && req.body.tanggal == tanggal) {
                         acc.push(cutiObj);
                     }
                 }
@@ -115,10 +127,10 @@ export class AbsenController {
             }
 
             let list_izin = await this._queryBus.execute(
-                new GetAllIzinByNIDNYearMonthQuery(req.params.nidn, year_month)
+                new GetAllIzinByNIDNYearMonthQuery(req.params?.nidn,req.params?.nip, year_month)
             );
             list_izin = list_izin.reduce((acc, item) => {
-                if (req.body.tanggal == new Date(item.tanggal_pengajuan).toISOString().split('T')[0]) {
+                if (item.status=="terima" && req.body.tanggal == new Date(item.tanggal_pengajuan).toISOString().split('T')[0]) {
                     acc.push(item);
                 }
                 return acc
@@ -134,17 +146,17 @@ export class AbsenController {
             //     throw new InvalidRequest("luar_radius", `jaran anda dengan unpak sejauh ${jarak} meter, itu berada di luar lokasi radius absensi (150 meter)`);
             // }
             absensi = await this._commandBus.send(
-                new CreateAbsenMasukCommand(req.body.nidn, req.body.tanggal, req.body.absen_masuk, req.body.keterangan)
+                new CreateAbsenMasukCommand(req.body?.nidn, req.body?.nip, req.body.tanggal, req.body.absen_masuk, req.body.keterangan)
             );
             message = "berhasil absen masuk";
         } else if (req.params.tipe == "keluar") {
             await absenKeluarSchema.validate(req.body, { abortEarly: false });
 
-            const query: GetAbsenQuery = new GetAbsenQuery(req.body.nidn, req.body.tanggal);
+            const query: GetAbsenQuery = new GetAbsenQuery(req.body?.nidn, req.body?.nip, req.body.tanggal);
             const absen = await this._queryBus.execute(query);
             if (absen.absen_keluar == null) {
                 absensi = await this._commandBus.send(
-                    new CreateAbsenKeluarCommand(absen.nidn, absen.tanggal, req.body.absen_keluar, req.body.keterangan)
+                    new CreateAbsenKeluarCommand(absen.nidn, absen.nip, absen.tanggal, req.body.absen_keluar, req.body.keterangan)
                 );
                 message = "berhasil absen keluar";
             } else {

@@ -4,6 +4,7 @@ import { CreateIzinCommand } from './CreateIzinCommand';
 import { getConnection } from 'typeorm';
 import { Izin } from '../../infrastructure/orm/Izin';
 import { JenisIzin } from '../../infrastructure/orm/JenisIzin';
+import { logger } from '../../infrastructure/config/logger';
 
 @injectable()
 export class CreateIzinCommandHandler implements ICommandHandler<CreateIzinCommand> {
@@ -17,9 +18,16 @@ export class CreateIzinCommandHandler implements ICommandHandler<CreateIzinComma
   }
 
   async handle(command: CreateIzinCommand) {
+    logger.info({payload:command})
     const _db = await getConnection("default");
     let izin  = new Izin();
-    izin.nidn = command.nidn;
+    if(command.nidn){
+      izin.nidn = command.nidn;
+    }
+    if(command.nip){
+      izin.nip = command.nip;
+    }
+    logger.info({izin:izin})
     izin.tanggal_pengajuan = command.tanggal_pengajuan;
     izin.tujuan = command.tujuan;
     izin.JenisIzin = await _db.getRepository(JenisIzin).findOne({where:{
@@ -27,6 +35,7 @@ export class CreateIzinCommandHandler implements ICommandHandler<CreateIzinComma
     }});
     if(command.dokumen !== null)
       izin.dokumen = command.dokumen
+    izin.status = "menunggu"
 
     await _db.getRepository(Izin).save(izin);
     // const application: Application = new Application(

@@ -6,8 +6,6 @@ import { ICommandBus } from '../../infrastructure/abstractions/messaging/IComman
 import { IQueryBus } from '../../infrastructure/abstractions/messaging/IQueryBus';
 import { ILog } from '../../infrastructure/abstractions/messaging/ILog';
 import { LoginLocal } from '../../application/login/LoginLocal';
-import { UserSimak } from '../../infrastructure/orm/UserSimak';
-import { User } from '../../infrastructure/orm/User';
 
 @controller('/auth')
 export class AuthController {

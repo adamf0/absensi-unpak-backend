@@ -3,6 +3,7 @@ import { IQueryHandler } from '../../infrastructure/abstractions/messaging/IQuer
 import { GetAbsenByFilterQuery } from './GetAbsenByFilterQuery';
 import { Between, FindManyOptions, getConnection } from 'typeorm';
 import { Absen } from '../../infrastructure/orm/Absen';
+import { logger } from '../../infrastructure/config/logger';
 
 @injectable()
 export class GetAbsenByFilterQueryHandler implements IQueryHandler<GetAbsenByFilterQuery, any> {
@@ -16,22 +17,39 @@ export class GetAbsenByFilterQueryHandler implements IQueryHandler<GetAbsenByFil
   }
 
   async execute(query: GetAbsenByFilterQuery) {
+    logger.info({payload:query})
     const _db = await getConnection("default");
+    let data:FindManyOptions<Absen> = {}
+    if(query.nidn){
+      data = {
+        ...data,
+        where: { nidn: query.nidn }
+      }
+    } else{
+      data = {
+        ...data,
+        where: { nip: query.nip }
+      }
+    }
 
     if(query.tanggal_mulai && query.tanggal_berakhir){
-      return await _db.getRepository(Absen).findBy({
-        nidn: query.nidn,
-        tanggal: Between(query.tanggal_mulai, query.tanggal_berakhir)
-      })
+      data = {
+        ...data,
+        where:{
+          ...data.where,
+          tanggal: Between(query.tanggal_mulai, query.tanggal_berakhir)
+        }
+      }
     } else if(query.tanggal_mulai){
-      return await _db.getRepository(Absen).findBy({
-        nidn: query.nidn,
-        tanggal: query.tanggal_mulai
-      })
-    } else{
-      return await _db.getRepository(Absen).findBy({
-        nidn: query.nidn
-      })
+      data = {
+        ...data,
+        where:{
+          ...data.where,
+          tanggal: query.tanggal_mulai
+        }
+      }
     }
+    const record = await _db.getRepository(Absen).find(data)
+    logger.info({filter:data, absen:record})
   }
 }

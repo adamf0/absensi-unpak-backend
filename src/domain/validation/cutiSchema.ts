@@ -1,7 +1,8 @@
 import * as Yup from "yup";
 
 export const cutiCreateSchema = Yup.object({
-    nidn: Yup.string().required("nidn is required"),
+    nidn: Yup.string().nullable().optional(),
+    nip: Yup.string().nullable().optional(),
     tanggal_pengajuan: Yup.date().required("tanggal_pengajuan is required"),
     lama_cuti: Yup.number().required("lama_cuti is required"),
     tujuan: Yup.string().required("tujuan is required"),
@@ -10,7 +11,8 @@ export const cutiCreateSchema = Yup.object({
 
 export const cutiUpdateSchema = Yup.object({
     id: Yup.string().required("id is required"),
-    nidn: Yup.string().required("nidn is required"),
+    nidn: Yup.string().nullable().optional(),
+    nip: Yup.string().nullable().optional(),
     tanggal_pengajuan: Yup.date().required("tanggal_pengajuan is required"),
     lama_cuti: Yup.number().required("lama_cuti is required"),
     tujuan: Yup.string().required("tujuan is required"),

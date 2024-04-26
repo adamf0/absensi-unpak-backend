@@ -2,7 +2,8 @@ import { Command } from "../../infrastructure/abstractions/messaging/Command";
 
 export class UpdateIzinCommand extends Command {
     public id: number;
-    public nidn: string;
+    public nidn: string|null;
+    public nip: string|null;
     public tanggal_pengajuan: string;
     public tujuan: string;
     public jenis_izin: string;
@@ -10,7 +11,8 @@ export class UpdateIzinCommand extends Command {
     
     constructor(
       id:number,
-      nidn:string,
+      nidn:string|null,
+      nip:string|null,
       tanggal_pengajuan:string,
       tujuan:string,
       jenis_izin:string,
@@ -19,6 +21,7 @@ export class UpdateIzinCommand extends Command {
       super();
       this.id = id
       this.nidn = nidn
+      this.nip = nip
       this.tanggal_pengajuan = tanggal_pengajuan
       this.tujuan = tujuan
       this.jenis_izin = jenis_izin

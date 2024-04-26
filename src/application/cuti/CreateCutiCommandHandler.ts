@@ -4,6 +4,7 @@ import { CreateCutiCommand } from './CreateCutiCommand';
 import { getConnection } from 'typeorm';
 import { Cuti } from '../../infrastructure/orm/Cuti';
 import { JenisCuti } from '../../infrastructure/orm/JenisCuti';
+import { logger } from '../../infrastructure/config/logger';
 
 @injectable()
 export class CreateCutiCommandHandler implements ICommandHandler<CreateCutiCommand> {
@@ -17,9 +18,16 @@ export class CreateCutiCommandHandler implements ICommandHandler<CreateCutiComma
   }
 
   async handle(command: CreateCutiCommand) {
+    logger.info({payload:command})
     const _db = await getConnection("default");
     let cuti  = new Cuti();
-    cuti.nidn = command.nidn;
+    if(command.nidn){
+      cuti.nidn = command.nidn;
+    }
+    if(command.nip){
+      cuti.nip = command.nip;
+    }
+    logger.info({cuti:cuti})
     cuti.tanggal_pengajuan = command.tanggal_pengajuan;
     cuti.lama_cuti = command.lama_cuti;
     cuti.tujuan = command.tujuan;
@@ -28,6 +36,7 @@ export class CreateCutiCommandHandler implements ICommandHandler<CreateCutiComma
     }});
     if(command.dokumen !== null)
       cuti.dokumen = command.dokumen
+    cuti.status = "menunggu"
 
     await _db.getRepository(Cuti).save(cuti);
     // const application: Application = new Application(

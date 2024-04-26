@@ -1,8 +1,9 @@
 import { injectable } from 'inversify';
 import { IQueryHandler } from '../../infrastructure/abstractions/messaging/IQueryHandler';
 import { GetAllCutiByNIDNYearMonthQuery } from './GetAllCutiByNIDNYearMonthQuery';
-import { Like, getConnection } from 'typeorm';
+import { FindManyOptions, Like, getConnection } from 'typeorm';
 import { Cuti } from '../../infrastructure/orm/Cuti';
+import { logger } from '../../infrastructure/config/logger';
 
 @injectable()
 export class GetAllCutiByNIDNYearMonthQueryHandler implements IQueryHandler<GetAllCutiByNIDNYearMonthQuery, any> {
@@ -16,15 +17,32 @@ export class GetAllCutiByNIDNYearMonthQueryHandler implements IQueryHandler<GetA
   }
 
   async execute(query: GetAllCutiByNIDNYearMonthQuery) {
+    logger.info({payload:query})
     const _db = await getConnection("default");
-    return await _db.getRepository(Cuti).find({
-      where:{
-        nidn: query.nidn,
-        tanggal_pengajuan: Like(`%${query.year_month}%`),
-      },
+
+    const data:FindManyOptions<Cuti> = {
       relations: {
         JenisCuti: true,
       },
-    })
+    }
+    if(query.nidn){
+      const filter = {...data, where:{
+        nidn: query.nidn,
+        tanggal_pengajuan: Like(`%${query.year_month}%`),
+      }}
+      const record = await _db.getRepository(Cuti).find(filter)
+      logger.info({filter:filter, cuti:record})
+      return record
+    } else if(query.nip){
+      const filter = {...data, where:{
+        nip: query.nip,
+        tanggal_pengajuan: Like(`%${query.year_month}%`),
+      }}
+      const record = await _db.getRepository(Cuti).find(filter)
+      logger.info({filter:filter, cuti:record})
+      return record
+    } else{
+      throw new Error("invalid GetAllCutiByNIDNYearMonthQuery")
+    }
   }
 }

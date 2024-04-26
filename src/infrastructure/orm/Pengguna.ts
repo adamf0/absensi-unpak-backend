@@ -1,5 +1,6 @@
 import "reflect-metadata"
-import { Entity, Column, PrimaryGeneratedColumn} from "typeorm"
+import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, OneToOne} from "typeorm"
+import { Pegawai } from "./Pegawai"
 
 @Entity("pengguna")
 export class Pengguna {
@@ -7,7 +8,7 @@ export class Pengguna {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column({length: 100, type: "varchar"})
+    @Column({type: "varchar", unique: false})
     username: string
 
     @Column({length: 100, type: "varchar"})
@@ -18,4 +19,12 @@ export class Pengguna {
 
     @Column()
     status: string
+
+    @OneToOne(() => Pegawai, Pegawai => Pegawai.Pengguna, {
+        eager: true,
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    })
+    @JoinColumn({ name: "username" })
+    Pegawai: Pegawai
 }

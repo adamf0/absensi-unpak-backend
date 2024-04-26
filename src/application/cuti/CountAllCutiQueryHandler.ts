@@ -3,6 +3,7 @@ import { IQueryHandler } from '../../infrastructure/abstractions/messaging/IQuer
 import { CountAllCutiQuery } from './CountAllCutiQuery';
 import { Between, FindManyOptions, In, getConnection } from 'typeorm';
 import { Cuti } from '../../infrastructure/orm/Cuti';
+import { logger } from '../../infrastructure/config/logger';
 
 @injectable()
 export class CountAllCutiQueryHandler implements IQueryHandler<CountAllCutiQuery, any> {
@@ -16,16 +17,27 @@ export class CountAllCutiQueryHandler implements IQueryHandler<CountAllCutiQuery
   }
 
   async execute(query: CountAllCutiQuery) {
+    logger.info({payload:query})
     const _db = await getConnection("default");
-    let data: FindManyOptions<Cuti> = {
-      where: { nidn: query.nidn }
+    let data:FindManyOptions<Cuti> = {}
+    if(query.nidn){
+      data = {
+        where: { nidn: query.nidn }
+      }
+    } else{
+      data = {
+        where: { nip: query.nip }
+      }
     }
+
     if(query.tanggal_mulai && query.tanggal_berakhir){
       data = Object.assign(data, {
         ...data.where,
         tanggal: Between(query.tanggal_mulai, query.tanggal_berakhir)
       })
     }
-    return await _db.getRepository(Cuti).findAndCount(data)
+    const record = await _db.getRepository(Cuti).findAndCount(data)
+    logger.info({filter:data, cuti:record})
+    return record
   }
 }

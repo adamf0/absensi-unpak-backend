@@ -1,8 +1,9 @@
 import { injectable } from 'inversify';
 import { IQueryHandler } from '../../infrastructure/abstractions/messaging/IQueryHandler';
 import { GetAllIzinQuery } from './GetAllIzinQuery';
-import { getConnection } from 'typeorm';
+import { FindManyOptions, getConnection } from 'typeorm';
 import { Izin } from '../../infrastructure/orm/Izin';
+import { logger } from '../../infrastructure/config/logger';
 
 @injectable()
 export class GetAllIzinQueryHandler implements IQueryHandler<GetAllIzinQuery, any> {
@@ -16,19 +17,30 @@ export class GetAllIzinQueryHandler implements IQueryHandler<GetAllIzinQuery, an
   }
 
   async execute(query: GetAllIzinQuery) {
+    logger.info({payload:query})
     const _db = await getConnection("default");
-    let data = {
-      take: query.take,
-      skip: query.skip,
-      relations: {
-        JenisIzin: true,
-      },
+    const data:FindManyOptions<Izin> = {
+        take: query.take,
+        skip: query.skip,
+        relations: {
+          JenisIzin: true,
+        },
     }
-
     if(query.nidn!=null){
-      Object.assign(data, {where: { nidn: query.nidn }})
+      const filter = {...data, where: { nidn: query.nidn }}
+      const record = await _db.getRepository(Izin).findAndCount(filter)
+      logger.info({filter:filter, izin:record})
+      return record
     }
-    
-    return await _db.getRepository(Izin).findAndCount(data)
+    else if(query.nip!=null){
+      const filter = {...data, where: { nip: query.nip }}
+      const record = await _db.getRepository(Izin).findAndCount(filter)
+      logger.info({filter:filter, izin:record})
+      return record
+    } else{
+      const record = await _db.getRepository(Izin).findAndCount(data)
+      logger.info({filter:data, izin:record})
+      return record
+    }
   }
 }

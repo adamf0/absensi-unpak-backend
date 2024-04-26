@@ -9,8 +9,11 @@ export class Absen {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column({length: 20, type: "varchar"})
+    @Column({length: 20, type: "varchar", nullable: true})
     nidn: string
+
+    @Column({length: 20, type: "varchar", nullable: true})
+    nip: string
 
     @Column("date")
     tanggal: string

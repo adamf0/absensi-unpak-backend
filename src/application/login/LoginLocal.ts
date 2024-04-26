@@ -46,10 +46,6 @@ export class LoginLocal implements LoginProxy {
             user.id+"",
             user.nama,
             levels,
-            dosen?.NIDN??"",
-            dosen?.kode_fak??"",
-            dosen?.kode_jurusan??"",
-            dosen?.kode_prodi??"",
         )
     }
 }

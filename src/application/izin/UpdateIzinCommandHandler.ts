@@ -4,6 +4,7 @@ import { UpdateIzinCommand } from './UpdateIzinCommand';
 import { getConnection } from 'typeorm';
 import { Izin } from '../../infrastructure/orm/Izin';
 import { JenisIzin } from '../../infrastructure/orm/JenisIzin';
+import { logger } from '../../infrastructure/config/logger';
 
 @injectable()
 export class UpdateIzinCommandHandler implements ICommandHandler<UpdateIzinCommand> {
@@ -17,11 +18,18 @@ export class UpdateIzinCommandHandler implements ICommandHandler<UpdateIzinComma
   }
 
   async handle(command: UpdateIzinCommand) {
+    logger.info({payload:command})
     const _db = await getConnection("default");
     let izin = await _db.getRepository(Izin).findOneByOrFail({
       id: command.id,
     })
-    izin.nidn = command.nidn;
+    if(command.nidn){
+      izin.nidn = command.nidn;
+    }
+    if(command.nip){
+      izin.nip = command.nip;
+    }
+    logger.info({izin:izin})
     izin.tanggal_pengajuan = command.tanggal_pengajuan;
     izin.tujuan = command.tujuan;
     izin.JenisIzin = await _db.getRepository(JenisIzin).findOne({where:{

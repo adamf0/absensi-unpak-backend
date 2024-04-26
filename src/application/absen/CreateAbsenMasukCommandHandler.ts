@@ -3,6 +3,7 @@ import { ICommandHandler } from '../../infrastructure/abstractions/messaging/ICo
 import { CreateAbsenMasukCommand } from './CreateAbsenMasukCommand';
 import { Absen } from '../../infrastructure/orm/Absen';
 import { getConnection } from 'typeorm';
+import { logger } from '../../infrastructure/config/logger';
 
 @injectable()
 export class CreateAbsenMasukCommandHandler implements ICommandHandler<CreateAbsenMasukCommand> {
@@ -16,13 +17,29 @@ export class CreateAbsenMasukCommandHandler implements ICommandHandler<CreateAbs
   }
 
   async handle(command: CreateAbsenMasukCommand) {
+    logger.info({payload:command})
     const _db = await getConnection("default");
-    const absen = await _db.getRepository(Absen).findOneBy({
-      nidn: command.nidn,
-      tanggal: command.tanggal,
-    })
-    absen.nidn = command.nidn;
-    absen.tanggal = command.tanggal;
+    let absen = null
+    let target = null
+
+    if(command.nidn){
+      target = command.nidn
+      absen = await _db.getRepository(Absen).findOneBy({
+        nidn: command.nidn,
+        tanggal: command.tanggal,
+      })
+    } else if(command.nip){
+      target = command.nip
+      absen = await _db.getRepository(Absen).findOneBy({
+        nip: command.nip,
+        tanggal: command.tanggal,
+      })
+    } else{
+      throw new Error("invalid CreateAbsenMasukCommand")
+    }
+    logger.info({absen:absen})
+    if(absen==null) throw new Error(`data absen ${target} pada tanggal ${command.tanggal} tidak ditemukan`)
+    
     absen.absen_masuk = command.tanggal + " " +command.absen_masuk;
     absen.catatan_telat = command.catatan;
     await _db.getRepository(Absen).save(absen);

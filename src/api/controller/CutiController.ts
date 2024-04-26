@@ -28,15 +28,21 @@ export class CutiController {
 
     @httpGet('/')
     async index(@request() req: Request, @response() res: Response) {
-        let nidn,page,pageSize,startIndex,endIndex
+        let nidn,nip,page,pageSize,startIndex,endIndex
         nidn = req.query?.nidn==undefined || req.query?.nidn=="null"? null:req.query.nidn
+        nip = req.query?.nip==undefined || req.query?.nip=="null"? null:req.query.nip
         page = req.query?.page==undefined || req.query?.page=="null"? null:parseInt(String(req.query?.page ?? "1"))
         pageSize = req.query?.pageSize==undefined || req.query?.pageSize=="null"? null:parseInt(String(req.query?.pageSize ?? "10"))
         startIndex = (page - 1) * pageSize;
         endIndex = page * pageSize;
 
         let [data, count] = await this._queryBus.execute(
-            new GetAllCutiQuery(pageSize, startIndex, ["undefined","null"].includes(nidn)? null:nidn)
+            new GetAllCutiQuery(
+                pageSize, 
+                startIndex, 
+                ["undefined","null"].includes(nidn)? null:nidn,
+                ["undefined","null"].includes(nip)? null:nip,
+            )
         );
         data.map((d)=>{
             d.dokumen = d.dokumen==null? null:`${req.protocol}://${req.headers.host}/static/cuti/${d.dokumen}`
@@ -88,17 +94,20 @@ export class CutiController {
 
     @httpPost('/create')
     async store(@request() req: Request, @response() res: Response) {
+        const uploadResult = await saveDokumenCuti(req, res);
         const [_, countCuti] = await this._queryBus.execute(
-            new CountAllCutiOnWaitingQuery()
+            new CountAllCutiOnWaitingQuery(req?.body?.nidn,req?.body?.nip)
         );
         const [__, countIzin] = await this._queryBus.execute(
-            new CountAllIzinOnWaitingQuery()
+            new CountAllIzinOnWaitingQuery(req?.body?.nidn,req?.body?.nip)
         );
         if(countCuti || countIzin){
-            throw new Error(`pengajuan cuti ditolak karena masih ada ${countCuti? "cuti":"izin"} yg belum di terima`)
+            if(uploadResult?.file?.filename!==null){
+                fs.unlink(`${cutiFilePath}/${uploadResult?.file?.filename}`, (err) => {})
+            }
+            throw new Error(`pengajuan izin ditolak karena masih ada ${countCuti? "cuti":"izin"} yg belum di terima`)
         }
 
-        const uploadResult = await saveDokumenCuti(req, res);
         // const uploadedFile: UploadedFile = uploadResult.file;
         // const { body } = uploadResult;
         await cutiCreateSchema.validate(req.body, { abortEarly: false }).catch((error:Error) => {
@@ -111,6 +120,7 @@ export class CutiController {
         const cuti = await this._commandBus.send(
             new CreateCutiCommand(
                 req.body.nidn,
+                req.body.nip,
                 req.body.tanggal_pengajuan,
                 req.body.lama_cuti,
                 req.body.tujuan,
@@ -145,6 +155,7 @@ export class CutiController {
             new UpdateCutiCommand(
                 parseInt(req.body.id),
                 req.body.nidn,
+                req.body.nip,
                 req.body.tanggal_pengajuan,
                 req.body.lama_cuti,
                 req.body.tujuan,

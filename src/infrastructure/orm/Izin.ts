@@ -10,9 +10,12 @@ export class Izin {
     @PrimaryGeneratedColumn({unsigned: true})
     id: number
 
-    @Column({length: 20, type: "varchar"})
+    @Column({length: 20, type: "varchar", nullable: true})
     nidn: string
 
+    @Column({length: 100, type: "varchar", nullable: true})
+    nip: string
+    
     @Column("date")
     tanggal_pengajuan: string
 

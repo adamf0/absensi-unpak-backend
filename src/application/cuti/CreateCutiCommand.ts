@@ -1,7 +1,8 @@
 import { Command } from "../../infrastructure/abstractions/messaging/Command";
 
 export class CreateCutiCommand extends Command {
-    public nidn: string;
+    public nidn: string|null;
+    public nip: string|null;
     public tanggal_pengajuan: string;
     public lama_cuti: number;
     public tujuan: string;
@@ -9,7 +10,8 @@ export class CreateCutiCommand extends Command {
     public dokumen: string|null;
     
     constructor(
-      nidn:string,
+      nidn:string|null,
+      nip:string|null,
       tanggal_pengajuan:string,
       lama_cuti:number,
       tujuan:string,
@@ -18,6 +20,7 @@ export class CreateCutiCommand extends Command {
     ) {
       super();
       this.nidn = nidn
+      this.nip = nip
       this.tanggal_pengajuan = tanggal_pengajuan
       this.lama_cuti = lama_cuti
       this.tujuan = tujuan

@@ -1,9 +1,8 @@
 import { getConnection } from "typeorm";
 import { LoginProxy } from "../abstractions/LoginProxy";
-import { UserSimak } from "../../infrastructure/orm/UserSimak";
 import * as crypto from "crypto"
 import { UserEntity } from "../../domain/entity/UserEntity";
-import { LoginSimpeg } from "./LoginSimpeg";
+import { Pengguna } from "../../infrastructure/orm/Pengguna";
 
 function md5(input) {
     return crypto.createHash('md5').update(input).digest('hex');
@@ -12,35 +11,31 @@ function sha1(input) {
     return crypto.createHash('sha1').update(input).digest('hex');
 }
 
-export class LoginSimak implements LoginProxy {
+export class LoginSimpeg implements LoginProxy {
     async login(username:string, password:string){
-        const _db = await getConnection("simak");
-        const users = await _db.getRepository(UserSimak).find({
+        const _db = await getConnection("simpeg");
+        const users = await _db.getRepository(Pengguna).find({
             where: {
-                userid: username,
+                username: username,
+                level: "PEGAWAI"
             },
             relations: {
-              Dosen: true,
+                Pegawai: true,
             },
         })
-
-        let user = users.filter(user=>user.password==sha1(md5(password)))
+        let user = users.filter(user=>user.password==sha1(password))
         if(user.length>1){
             throw new Error(`ditemukan akun ganda dengan username ${username}`)
         } else if(user.length==0){
-            const simpeg = new LoginSimpeg()
-            return simpeg.login(username,password);
+            throw new Error("akun tidak ditemukan")
         }
 
         return new UserEntity(
-            user[0].userid,
-            user[0].nama,
-            ["dosen"],
-            user[0].Dosen.NIDN,
+            user[0].id.toString(),
+            user[0].Pegawai?.nama,
+            ["pegawai"],
             null,
-            user[0].Dosen.kode_fak,
-            user[0].Dosen.kode_jurusan,
-            user[0].Dosen.kode_prodi,
+            username
         )
     }
 }

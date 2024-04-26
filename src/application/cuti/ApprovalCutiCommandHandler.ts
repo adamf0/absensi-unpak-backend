@@ -3,6 +3,7 @@ import { ICommandHandler } from '../../infrastructure/abstractions/messaging/ICo
 import { ApprovalCutiCommand } from './ApprovalCutiCommand';
 import { getConnection } from 'typeorm';
 import { Cuti } from '../../infrastructure/orm/Cuti';
+import { logger } from '../../infrastructure/config/logger';
 
 @injectable()
 export class ApprovalCutiCommandHandler implements ICommandHandler<ApprovalCutiCommand> {
@@ -16,6 +17,7 @@ export class ApprovalCutiCommandHandler implements ICommandHandler<ApprovalCutiC
   }
 
   async handle(command: ApprovalCutiCommand) {
+    logger.info({payload:command})
     const _db = await getConnection("default");
     let cuti = await _db.getRepository(Cuti).findOneOrFail({
         where: {
@@ -23,6 +25,7 @@ export class ApprovalCutiCommandHandler implements ICommandHandler<ApprovalCutiC
         },
         relations: {},
     })
+    logger.info({cuti:cuti})
     cuti.status = command.type
     cuti.catatan = command.note
 

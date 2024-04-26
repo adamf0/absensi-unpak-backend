@@ -1,5 +1,14 @@
 import { IQuery } from "../../infrastructure/abstractions/messaging/IQuery";
 
 export class CountAllIzinOnWaitingQuery implements IQuery {
-    constructor() {}
+    public nidn:string|null
+    public nip:string|null
+
+    constructor(
+        nidn:string|null = null,
+        nip:string|null = null
+    ) {
+        this.nidn = nidn
+        this.nip = nip
+    }
 }

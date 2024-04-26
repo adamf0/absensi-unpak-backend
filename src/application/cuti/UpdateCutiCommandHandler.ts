@@ -4,6 +4,7 @@ import { UpdateCutiCommand } from './UpdateCutiCommand';
 import { getConnection } from 'typeorm';
 import { Cuti } from '../../infrastructure/orm/Cuti';
 import { JenisCuti } from '../../infrastructure/orm/JenisCuti';
+import { logger } from '../../infrastructure/config/logger';
 
 @injectable()
 export class UpdateCutiCommandHandler implements ICommandHandler<UpdateCutiCommand> {
@@ -17,11 +18,18 @@ export class UpdateCutiCommandHandler implements ICommandHandler<UpdateCutiComma
   }
 
   async handle(command: UpdateCutiCommand) {
+    logger.info({payload:command})
     const _db = await getConnection("default");
     let cuti = await _db.getRepository(Cuti).findOneByOrFail({
       id: command.id,
     })
-    cuti.nidn = command.nidn;
+    if(command.nidn){
+      cuti.nidn = command.nidn;
+    }
+    if(command.nip){
+      cuti.nip = command.nip;
+    }
+    logger.info({cuti:cuti})
     cuti.tanggal_pengajuan = command.tanggal_pengajuan;
     cuti.lama_cuti = command.lama_cuti;
     cuti.tujuan = command.tujuan;
