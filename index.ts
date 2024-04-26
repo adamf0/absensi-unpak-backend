@@ -352,7 +352,7 @@ cron.schedule('1 0 * * *', async () => {//* * * * *
     timezone: "Asia/Jakarta"
 });
 
-cron.schedule('* * * * *', async () => {
+cron.schedule('0 22 * * *', async () => {
     console.log('Running a job absen keluar');
     try {
         const _db = await getConnection("cron");
