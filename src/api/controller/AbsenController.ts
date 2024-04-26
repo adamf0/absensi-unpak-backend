@@ -127,7 +127,7 @@ export class AbsenController {
             }
 
             let list_izin = await this._queryBus.execute(
-                new GetAllIzinByNIDNYearMonthQuery(req.params?.nidn,req.params?.nip, year_month)
+                new GetAllIzinByNIDNYearMonthQuery(req.body?.nidn,req.body?.nip, year_month)
             );
             list_izin = list_izin.reduce((acc, item) => {
                 if (item.status=="terima" && req.body.tanggal == new Date(item.tanggal_pengajuan).toISOString().split('T')[0]) {
