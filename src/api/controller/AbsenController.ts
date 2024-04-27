@@ -13,6 +13,10 @@ import { distance } from '../../infrastructure/utility/Utility';
 import { GetAllCutiByNIDNYearMonthQuery } from '../../application/cuti/GetAllCutiByNIDNYearMonthQuery';
 import { GetAllIzinByNIDNYearMonthQuery } from '../../application/izin/GetAllIzinByNIDNYearMonthQuery';
 import { InvalidRequest } from '../../domain/entity/InvalidRequest';
+import { getConnection } from 'typeorm';
+import { Absen } from '../../infrastructure/orm/Absen';
+import { Dosen } from '../../infrastructure/orm/Dosen';
+import { Pengguna } from '../../infrastructure/orm/Pengguna';
 
 @controller('/absen')
 export class AbsenController {
@@ -90,6 +94,73 @@ export class AbsenController {
             validation: [],
             log: [],
         });
+    }
+
+    @httpGet('/generate_absen/:tanggal')
+    async generate(@request() req: Request, @response() res: Response) {
+        try {
+            const _dbSimak = await getConnection("simak");
+            const _dbLocal = await getConnection("default");
+            const _dbSimpeg = await getConnection("simpeg");
+            if(_dbSimak.isInitialized && _dbLocal.isInitialized && _dbSimpeg.isInitialized && ![undefined,"undefined",null,"null"].includes(req.params?.tanggal) && !isNaN(Date.parse(req.params?.tanggal??""))){
+                const dateNow = req.params?.tanggal;
+    
+                const listDosen = await _dbSimak.getRepository(Dosen).find();
+                const existingAbsenDosen = await _dbLocal.getRepository(Absen).find({
+                    where: {
+                        tanggal: dateNow,
+                    },
+                    select: ['nidn'],
+                });
+                const existingNidnSet = new Set(existingAbsenDosen.map(absen => absen.nidn));
+                const absenDosenInstances = listDosen
+                    .filter(dosen => !existingNidnSet.has(dosen.NIDN))
+                    .map(dosen => {
+                        const absen = new Absen();
+                        absen.nidn = dosen.NIDN;
+                        absen.tanggal = dateNow;
+                        return absen;
+                    });
+    
+                await _dbLocal.getRepository(Absen)
+                    .createQueryBuilder()
+                    .insert()
+                    .values(absenDosenInstances)
+                    .orIgnore()
+                    .execute();
+    
+                const listPengguna = await _dbSimpeg.getRepository(Pengguna).find({
+                    where: {
+                        level: "PEGAWAI"
+                    },
+                });
+                const existingAbsenPegawai = await _dbLocal.getRepository(Absen).find({
+                    where: {
+                        tanggal: dateNow
+                    },
+                    select: ['nip'],
+                });
+                const existingNipSet = new Set(existingAbsenPegawai.map(absen => absen.nip));
+                const absenPegawaiInstances = listPengguna
+                    .filter(pegawai => !existingNipSet.has(pegawai.username))
+                    .map(pegawai => {
+                        const absen = new Absen();
+                        absen.nip = pegawai.username;
+                        absen.tanggal = dateNow;
+                        return absen;
+                    });
+    
+                await _dbLocal.getRepository(Absen)
+                    .createQueryBuilder()
+                    .insert()
+                    .values(absenPegawaiInstances)
+                    .orIgnore()
+                    .execute();
+            }
+            // db.destroy()
+        } catch (error) {
+            console.error('Error occurred:', error);
+        }
     }
 
     @httpPost('/:tipe')
