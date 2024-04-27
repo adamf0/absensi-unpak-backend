@@ -142,7 +142,7 @@ export class AbsenController {
                 });
                 const existingNipSet = new Set(existingAbsenPegawai.map(absen => absen.nip));
                 const absenPegawaiInstances = listPengguna
-                    .filter(pegawai => !existingNipSet.has(pegawai.username))
+                    .filter(pegawai => !existingNipSet.has(pegawai.username.toString()))
                     .map(pegawai => {
                         const absen = new Absen();
                         absen.nip = pegawai.username;
@@ -157,9 +157,25 @@ export class AbsenController {
                     .orIgnore()
                     .execute();
             }
+
+            res.status(200).json({
+                status: 200,
+                message: `berhasil genetare inisialisasi absen ${req.params?.tanggal}`,
+                data: null,
+                list: null,
+                validation: [],
+                log: [],
+            });
             // db.destroy()
-        } catch (error) {
-            console.error('Error occurred:', error);
+        } catch (error:any) {
+            res.status(500).json({
+                status: 500,
+                message: error.message,
+                data: null,
+                list: null,
+                validation: [],
+                log: [],
+            });
         }
     }
 

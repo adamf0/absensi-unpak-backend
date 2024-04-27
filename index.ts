@@ -288,7 +288,7 @@ process.env.TZ = "Asia/Jakarta";
 api.listen(port, async () =>
     console.log('The application is running in %s:%s', process.env.base_url, port)
 );
-cron.schedule('0 1 * * *', async () => {//* * * * *
+cron.schedule('* * * * *', async () => {//* * * * *
     console.log('Running a job initial absensi, '+new Date().toISOString());
     try {
         const _dbSimak = await getConnection("simak");
@@ -334,7 +334,7 @@ cron.schedule('0 1 * * *', async () => {//* * * * *
             });
             const existingNipSet = new Set(existingAbsenPegawai.map(absen => absen.nip));
             const absenPegawaiInstances = listPengguna
-                .filter(pegawai => !existingNipSet.has(pegawai.username))
+                .filter(pegawai => !existingNipSet.has(pegawai.username.toString()))
                 .map(pegawai => {
                     const absen = new Absen();
                     absen.nip = pegawai.username;
@@ -358,7 +358,7 @@ cron.schedule('0 1 * * *', async () => {//* * * * *
     timezone: "Asia/Jakarta"
 });
 
-cron.schedule('0 22 * * *', async () => {
+cron.schedule('* 22 * * *', async () => {
     console.log('Running a job absen keluar, '+new Date().toISOString());
     try {
         const _db = await getConnection("cron");
