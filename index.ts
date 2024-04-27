@@ -160,6 +160,7 @@ async function connect(){
             entities: [Absen,Cuti,JenisCuti,JenisIzin,Izin,User],
             logging: true,
             synchronize: true,
+            timezone: "Asia/Jakarta"
         },
         {
             name: "cron",
@@ -172,6 +173,7 @@ async function connect(){
             entities: [Absen],
             logging: true,
             synchronize: true,
+            timezone: "Asia/Jakarta"
         },
         {
             name: "simak",
@@ -182,7 +184,8 @@ async function connect(){
             password: process.env.db_password_simak,
             database: process.env.db_database_simak,
             entities: [Dosen,UserSimak],
-            synchronize: false
+            synchronize: false,
+            timezone: "Asia/Jakarta"
         },
         {
             name: "simpeg",
@@ -193,7 +196,8 @@ async function connect(){
             password: process.env.db_password_simpeg,
             database: process.env.db_database_simpeg,
             entities: [Pengguna,Pegawai],
-            synchronize: false
+            synchronize: false,
+            timezone: "Asia/Jakarta"
         },
     ])
 }
@@ -279,11 +283,13 @@ container.bind<InfoController>(TYPES.Controller).to(InfoController);
 container.bind<AuthController>(TYPES.Controller).to(AuthController);
 
 const api: Application = container.get<Application>(TYPES.ApiServer);
+process.env.TZ = "Asia/Jakarta";
+
 api.listen(port, async () =>
     console.log('The application is running in %s:%s', process.env.base_url, port)
 );
-cron.schedule('1 0 * * *', async () => {//* * * * *
-    console.log('Running a job initial absensi');
+cron.schedule('0 1 * * *', async () => {//* * * * *
+    console.log('Running a job initial absensi, '+new Date().toISOString());
     try {
         const _dbSimak = await getConnection("simak");
         const _dbLocal = await getConnection("default");
@@ -353,7 +359,7 @@ cron.schedule('1 0 * * *', async () => {//* * * * *
 });
 
 cron.schedule('0 22 * * *', async () => {
-    console.log('Running a job absen keluar');
+    console.log('Running a job absen keluar, '+new Date().toISOString());
     try {
         const _db = await getConnection("cron");
         if(_db.isInitialized){
