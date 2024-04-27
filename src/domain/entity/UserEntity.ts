@@ -1,6 +1,6 @@
 export class UserEntity {  
     public id:string
-    public nama:string
+    public nama:string|null
     public level:Array<string>
     public NIDN:string|null = null
     public nip:string|null = null
@@ -10,7 +10,7 @@ export class UserEntity {
 
     constructor (
       id:string,
-      nama:string,
+      nama:string|null = null,
       level:Array<string>,
       NIDN:string|null = null,
       nip:string|null = null,
