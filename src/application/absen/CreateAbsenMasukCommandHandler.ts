@@ -4,6 +4,7 @@ import { CreateAbsenMasukCommand } from './CreateAbsenMasukCommand';
 import { Absen } from '../../infrastructure/orm/Absen';
 import { getConnection } from 'typeorm';
 import { logger } from '../../infrastructure/config/logger';
+import moment from 'moment';
 
 @injectable()
 export class CreateAbsenMasukCommandHandler implements ICommandHandler<CreateAbsenMasukCommand> {
@@ -40,9 +41,10 @@ export class CreateAbsenMasukCommandHandler implements ICommandHandler<CreateAbs
     logger.info({absen:absen})
     if(absen==null) throw new Error(`data absen ${target} pada tanggal ${command.tanggal} tidak ditemukan`)
     
-    absen.absen_masuk = command.tanggal + " " +command.absen_masuk;
+    absen.absen_masuk = moment(`${command.tanggal} ${command.absen_masuk}:00`).tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss');
     absen.catatan_telat = command.catatan;
     await _db.getRepository(Absen).save(absen);
+    logger.info({absenInsert:absen})
 
     // const application: Application = new Application(
     //   command.guid,
