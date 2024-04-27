@@ -29,7 +29,7 @@ export class LoginSimpeg implements LoginProxy {
 
         return new UserEntity(
             user[0].id.toString(),
-            user[0].Pegawai.nama,
+            user[0].Pegawai?.nama,
             ["pegawai"],
             null,
             username
