@@ -20,7 +20,7 @@ export class Pengguna {
     @Column()
     status: string
 
-    @OneToOne(() => Pegawai, Pegawai => Pegawai.Pengguna, {
+    @OneToOne(() => Pegawai, Pegawai => Pegawai.nip, {
         eager: true,
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
