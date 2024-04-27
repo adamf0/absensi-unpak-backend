@@ -52,8 +52,8 @@ export class CalendarController {
                 start: moment(item?.tanggal_pengajuan).tz('Asia/Jakarta').format('YYYY-MM-DD'),
                 end: moment(item?.tanggal_pengajuan).tz('Asia/Jakarta').add(item?.lama_cuti, 'days').format('YYYY-MM-DD'),
                 title: item?.tujuan,
-                // backgroundColor: "#1d4ed8",
-			    // borderColor: "#1d4ed8",//blue
+                backgroundColor: "#1d4ed8",
+			    borderColor: "#1d4ed8",//blue
                 // jenis_cuti: item?.JenisCuti?.nama,
             })),
             ...list_absen.map((item) => ({
@@ -61,16 +61,16 @@ export class CalendarController {
                 start: moment(item?.tanggal).tz('Asia/Jakarta').format('YYYY-MM-DD'),
                 end: moment(item?.tanggal).tz('Asia/Jakarta').add(item?.lama_cuti, 'days').format('YYYY-MM-DD'),
                 title: item?.absen_masuk==null? "Tidak Masuk":(item?.catatan_telat==null? "Masuk":`Telat karena ${item?.catatan_telat}`),
-                // backgroundColor: item?.absen_masuk==null? "#b91c1c":(item?.catatan_telat==null? "#15803d":`#000`),
-			    // borderColor: item?.absen_masuk==null? "#b91c1c":(item?.catatan_telat==null? "#15803d":`#000`),
+                backgroundColor: item?.absen_masuk==null? "#b91c1c":(item?.catatan_telat==null? "#15803d":`#000`),
+			    borderColor: item?.absen_masuk==null? "#b91c1c":(item?.catatan_telat==null? "#15803d":`#000`),
             })), //red green black
             ...list_izin.map((item) => ({
                 id: item?.id,
                 start: moment(item?.tanggal).tz('Asia/Jakarta').format('YYYY-MM-DD'),
                 end: moment(item?.tanggal).tz('Asia/Jakarta').add(item?.lama_cuti, 'days').format('YYYY-MM-DD'),
                 title: item?.tujuan,
-                // backgroundColor: "#c2410c",
-			    // borderColor: "#c2410c", //orange
+                backgroundColor: "#c2410c",
+			    borderColor: "#c2410c", //orange
             })),
         ];
 
