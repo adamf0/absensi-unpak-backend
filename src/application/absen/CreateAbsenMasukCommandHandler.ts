@@ -38,6 +38,8 @@ export class CreateAbsenMasukCommandHandler implements ICommandHandler<CreateAbs
     } else{
       throw new Error("invalid CreateAbsenMasukCommand")
     }
+    logger.info({absen:absen})
+    
     if(absen==null) throw new Error(`data absen ${target} pada tanggal ${command.tanggal} tidak ditemukan`)
     const x = moment(`${command.tanggal} ${command.absen_masuk}:00`).tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss')
 

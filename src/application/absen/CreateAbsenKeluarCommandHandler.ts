@@ -38,11 +38,12 @@ export class CreateAbsenKeluarCommandHandler implements ICommandHandler<CreateAb
     } else{
       throw new Error("invalid CreateAbsenKeluarCommand")
     }
-
     logger.info({absen:absen})
-    if(absen==null) throw new Error(`data absen ${target} pada tanggal ${command.tanggal} tidak ditemukan`)
     
-    absen.absen_keluar = moment(`${command.tanggal} ${command.absen_keluar}:00`).tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss');
+    if(absen==null) throw new Error(`data absen ${target} pada tanggal ${command.tanggal} tidak ditemukan`)
+      const x = moment(`${command.tanggal} ${command.absen_keluar}:00`).tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss')
+    
+    absen.absen_keluar = x;
     absen.catatan_pulang = command.catatan;
     await _db.getRepository(Absen).save(absen);
 

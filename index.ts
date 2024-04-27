@@ -160,7 +160,7 @@ async function connect(){
             entities: [Absen,Cuti,JenisCuti,JenisIzin,Izin,User],
             logging: true,
             synchronize: true,
-            timezone: "+07:00"
+            timezone: "+07:00" //https://github.com/typeorm/typeorm/issues/2939
         },
         {
             name: "cron",
