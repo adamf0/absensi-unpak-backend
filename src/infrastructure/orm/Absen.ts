@@ -19,7 +19,7 @@ export class Absen {
     @Column("date")
     tanggal: string
 
-    @Column("datetime",{nullable: true})
+    @Column("datetime",{nullable: true,})
     absen_masuk: string
 
     @Column("datetime",{nullable: true})

@@ -160,7 +160,7 @@ async function connect(){
             entities: [Absen,Cuti,JenisCuti,JenisIzin,Izin,User],
             logging: true,
             synchronize: true,
-            timezone: "Asia/Jakarta"
+            timezone: "Z"
         },
         {
             name: "cron",
@@ -173,7 +173,7 @@ async function connect(){
             entities: [Absen],
             logging: true,
             synchronize: true,
-            timezone: "Asia/Jakarta"
+            timezone: "Z"
         },
         {
             name: "simak",
@@ -185,7 +185,7 @@ async function connect(){
             database: process.env.db_database_simak,
             entities: [Dosen,UserSimak],
             synchronize: false,
-            timezone: "Asia/Jakarta"
+            timezone: "Z"
         },
         {
             name: "simpeg",
@@ -197,7 +197,7 @@ async function connect(){
             database: process.env.db_database_simpeg,
             entities: [Pengguna,Pegawai],
             synchronize: false,
-            timezone: "Asia/Jakarta"
+            timezone: "Z"
         },
     ])
 }
