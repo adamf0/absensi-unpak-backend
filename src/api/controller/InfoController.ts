@@ -23,7 +23,7 @@ export class InfoController {
 
     isLate(absen) {
         const currentTime = moment(absen.absen_masuk).tz('Asia/Jakarta');
-        const absenTime = moment("08:00", 'HH:mm').tz('Asia/Jakarta');
+        const absenTime = moment("08:00:00", 'HH:mm:ss').tz('Asia/Jakarta');
         return currentTime.isAfter(absenTime);
     }
 
