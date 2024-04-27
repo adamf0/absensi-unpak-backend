@@ -4,6 +4,7 @@ import { CreateAbsenKeluarCommand } from './CreateAbsenKeluarCommand';
 import { Absen } from '../../infrastructure/orm/Absen';
 import { getConnection } from 'typeorm';
 import { logger } from '../../infrastructure/config/logger';
+import moment from 'moment';
 
 @injectable()
 export class CreateAbsenKeluarCommandHandler implements ICommandHandler<CreateAbsenKeluarCommand> {
