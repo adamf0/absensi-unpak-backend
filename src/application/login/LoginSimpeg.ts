@@ -4,9 +4,6 @@ import * as crypto from "crypto"
 import { UserEntity } from "../../domain/entity/UserEntity";
 import { Pengguna } from "../../infrastructure/orm/Pengguna";
 
-function md5(input) {
-    return crypto.createHash('md5').update(input).digest('hex');
-}
 function sha1(input) {
     return crypto.createHash('sha1').update(input).digest('hex');
 }
@@ -32,7 +29,7 @@ export class LoginSimpeg implements LoginProxy {
 
         return new UserEntity(
             user[0].id.toString(),
-            user[0].Pegawai?.nama,
+            user[0]["Pegawai"]?.nama,
             ["pegawai"],
             null,
             username
