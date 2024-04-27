@@ -4,6 +4,7 @@ import { UserSimak } from "../../infrastructure/orm/UserSimak";
 import * as crypto from "crypto"
 import { UserEntity } from "../../domain/entity/UserEntity";
 import { LoginSimpeg } from "./LoginSimpeg";
+import { logger } from "../../infrastructure/config/logger";
 
 function md5(input) {
     return crypto.createHash('md5').update(input).digest('hex');
@@ -31,16 +32,18 @@ export class LoginSimak implements LoginProxy {
             const simpeg = new LoginSimpeg()
             return simpeg.login(username,password);
         }
+        const data = user[0]
+        logger.info({LoginSimak: data})
 
         return new UserEntity(
-            user[0].userid,
-            user[0].nama,
+            data.userid,
+            data.nama,
             ["dosen"],
-            user[0].Dosen.NIDN,
+            data.Dosen?.NIDN,
             null,
-            user[0].Dosen.kode_fak,
-            user[0].Dosen.kode_jurusan,
-            user[0].Dosen.kode_prodi,
+            data.Dosen?.kode_fak,
+            data.Dosen?.kode_jurusan,
+            data.Dosen?.kode_prodi,
         )
     }
 }

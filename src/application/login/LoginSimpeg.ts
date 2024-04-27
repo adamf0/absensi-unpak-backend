@@ -3,6 +3,7 @@ import { LoginProxy } from "../abstractions/LoginProxy";
 import * as crypto from "crypto"
 import { UserEntity } from "../../domain/entity/UserEntity";
 import { Pengguna } from "../../infrastructure/orm/Pengguna";
+import { logger } from "../../infrastructure/config/logger";
 
 function sha1(input) {
     return crypto.createHash('sha1').update(input).digest('hex');
@@ -26,10 +27,12 @@ export class LoginSimpeg implements LoginProxy {
         } else if(user.length==0){
             throw new Error("akun tidak ditemukan")
         }
+        const data = user[0]
+        logger.info({LoginSimpeg: data})
 
         return new UserEntity(
-            user[0].id.toString(),
-            user[0].Pegawai?.nama,
+            data.id.toString(),
+            data.Pegawai?.nama,
             ["pegawai"],
             null,
             username

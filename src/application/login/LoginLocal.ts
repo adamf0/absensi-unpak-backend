@@ -4,6 +4,7 @@ import { User } from "../../infrastructure/orm/User";
 import { LoginSimak } from "./LoginSimak";
 import { Dosen } from "../../infrastructure/orm/Dosen";
 import { UserEntity } from "../../domain/entity/UserEntity";
+import { logger } from "../../infrastructure/config/logger";
 
 export class LoginLocal implements LoginProxy {
     async login(username:string, password:string){
@@ -41,6 +42,7 @@ export class LoginLocal implements LoginProxy {
                 levels.push("dosen")
             }        
         }
+        logger.info({LoginLocal: user})
 
         return new UserEntity(
             user.id+"",
