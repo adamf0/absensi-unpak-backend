@@ -23,6 +23,7 @@ declare module 'express' {
 
 export const cutiFilePath = path.resolve(__dirname, '../..', '../public/cuti');
 export const izinFilePath = path.resolve(__dirname, '../..', '../public/izin');
+export const claimAbsenFilePath = path.resolve(__dirname, '../..', '../public/claimAbsen');
 
 const storageFileCuti: Multer['StorageEngine'] = multer.diskStorage({
     destination: cutiFilePath,
@@ -32,6 +33,12 @@ const storageFileCuti: Multer['StorageEngine'] = multer.diskStorage({
 });
 const storageFileIzin: Multer['StorageEngine'] = multer.diskStorage({
   destination: izinFilePath,
+  filename(req: ExpressRequest, file: File, fn: (error: Error | null, filename: string) => void): void {
+      fn(null, `${new Date().getTime().toString()}-${file.fieldname}${path.extname(file.originalname)}`);
+  },
+});
+const storageFileClaimAbsen: Multer['StorageEngine'] = multer.diskStorage({
+  destination: claimAbsenFilePath,
   filename(req: ExpressRequest, file: File, fn: (error: Error | null, filename: string) => void): void {
       fn(null, `${new Date().getTime().toString()}-${file.fieldname}${path.extname(file.originalname)}`);
   },
@@ -54,6 +61,21 @@ const uploadFileCuti = multer({
 
 const uploadFileIzin = multer({
   storage: storageFileIzin,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter(req, file, callback) {
+      const extension: boolean = ['.pdf'].indexOf(path.extname(file.originalname).toLowerCase()) >= 0;
+      const mimeType: boolean = ['application/pdf'].indexOf(file.mimetype) >= 0;
+
+      if (extension && mimeType) {
+          return callback(null, true);
+      }
+
+      callback(new Error('Invalid file type'));
+  },
+}).single('dokumen');
+
+const uploadFileClaimAbsen = multer({
+  storage: storageFileClaimAbsen,
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter(req, file, callback) {
       const extension: boolean = ['.pdf'].indexOf(path.extname(file.originalname).toLowerCase()) >= 0;
@@ -121,5 +143,32 @@ const saveDokumenIzin = async (req: ExpressRequest, res: Response): Promise<any>
       throw error;
     }
 };
+const saveDokumenClaimAbsen = async (req: ExpressRequest, res: Response): Promise<any> => {
+  try {
+      await new Promise((resolve, reject): void => {
+        uploadFileClaimAbsen(req, res, (error) => {
+          if (error) {
+            return reject(error);
+          }
+          
+          resolve(req);
+        });
+      });
+  
+      // await new Promise((resolve, reject): void => {
+      //     uploadFile(req, res, (error) => {
+      //       if (error) {
+      //         return reject(error);
+      //       }
+            
+      //       resolve(req);
+      //     });
+      // });
+  
+      return req;
+    } catch (error) {
+      throw error;
+    }
+};
 
-export { saveDokumenCuti, saveDokumenIzin};
+export { saveDokumenCuti, saveDokumenIzin, saveDokumenClaimAbsen};

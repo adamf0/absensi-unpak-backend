@@ -84,6 +84,15 @@ import { Pegawai } from "./src/infrastructure/orm/Pegawai";
 import 'moment-timezone';
 import moment from "moment";
 import morganMiddleware from "./src/infrastructure/config/morganMiddleware";
+import { ClaimAbsen } from "./src/infrastructure/orm/ClaimAbsen";
+import { CreateClaimAbsenCommandHandler } from "./src/application/claimAbsen/CreateClaimAbsenCommandHandler";
+import { UpdateClaimAbsenCommandHandler } from "./src/application/claimAbsen/UpdateClaimAbsenCommandHandler";
+import { ApprovalClaimAbsenCommandHandler } from "./src/application/claimAbsen/ApprovalClaimAbsenCommandHandler";
+import { DeleteClaimAbsenCommandHandler } from "./src/application/claimAbsen/DeleteClaimAbsenCommandHandler";
+import { GetClaimAbsenQueryHandler } from "./src/application/claimAbsen/GetClaimAbsenQueryHandler";
+import { GetAllClaimAbsenQueryHandler } from "./src/application/claimAbsen/GetAllClaimAbsenQueryHandler";
+import { ClaimAbsenController } from "./src/api/controller/ClaimAbsenController";
+import { CheckAbsenIdQueryHandler } from "./src/application/claimAbsen/CheckAbsenIdQueryHandler";
 var cron = require('node-cron');
 
 dotenv.config();
@@ -117,7 +126,7 @@ server.setErrorConfig((app: Application) => {
         let errorMessage = "error server";
         let logMessage = process.env.deploy == "dev" ? error.stack : "error server";
         
-        if (error instanceof QueryFailedError || error instanceof EntityMetadataNotFoundError || error instanceof EntityNotFoundError) {
+        if (error instanceof QueryFailedError || error instanceof EntityMetadataNotFoundError || error instanceof EntityNotFoundError || error instanceof EntityNotFoundError) {
             if (process.env.deploy != "dev") {
                 _log.saveLog(error.message || error.message);
             }
@@ -157,7 +166,7 @@ async function connect(){
             username: process.env.db_username,
             password: process.env.db_password,
             database: process.env.db_database,
-            entities: [Absen,Cuti,JenisCuti,JenisIzin,Izin,User],
+            entities: [Absen,Cuti,JenisCuti,JenisIzin,Izin,User,ClaimAbsen],
             logging: true,
             synchronize: true,
             timezone: "+07:00" //https://github.com/typeorm/typeorm/issues/2939
@@ -170,7 +179,7 @@ async function connect(){
             username: process.env.db_username,
             password: process.env.db_password,
             database: process.env.db_database,
-            entities: [Absen],
+            entities: [Absen,ClaimAbsen],
             logging: true,
             synchronize: true,
             timezone: "+07:00"
@@ -256,6 +265,15 @@ container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllIzinByNIDNYea
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(CountAllIzinQueryHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(CountAllIzinOnWaitingQueryHandler);
 //</izin>
+//<claimAbsen>
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(CreateClaimAbsenCommandHandler);
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(UpdateClaimAbsenCommandHandler);
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(ApprovalClaimAbsenCommandHandler);
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(DeleteClaimAbsenCommandHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetClaimAbsenQueryHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllClaimAbsenQueryHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(CheckAbsenIdQueryHandler);
+//</claimAbsen>
 //<calendar>
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllAbsenByNIDNYearMonthQueryHandler);
 //</calendar>
@@ -280,6 +298,7 @@ container.bind<CalendarController>(TYPES.Controller).to(CalendarController);
 container.bind<IzinController>(TYPES.Controller).to(IzinController);
 container.bind<PenggunaController>(TYPES.Controller).to(PenggunaController);
 container.bind<InfoController>(TYPES.Controller).to(InfoController);
+container.bind<ClaimAbsenController>(TYPES.Controller).to(ClaimAbsenController);
 container.bind<AuthController>(TYPES.Controller).to(AuthController);
 
 const api: Application = container.get<Application>(TYPES.ApiServer);
@@ -363,7 +382,7 @@ cron.schedule('* 22 * * *', async () => {
     try {
         const _db = await getConnection("cron");
         if(_db.isInitialized){
-            const yesterdayDate = moment().tz('Asia/Jakarta').startOf('day').subtract(1, 'days').format('YYYY-MM-DD')
+            const yesterdayDate = moment().tz('Asia/Jakarta').format('YYYY-MM-DD 15:00:00')
             const result = await _db.createQueryBuilder()
                 .update(Absen)
                 .set({ absen_keluar: () => 'CURRENT_TIMESTAMP' })

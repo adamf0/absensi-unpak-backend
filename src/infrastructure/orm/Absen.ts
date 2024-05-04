@@ -1,5 +1,6 @@
 import "reflect-metadata"
-import { Entity, PrimaryGeneratedColumn, Column, Index, Unique } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, Index, OneToOne } from "typeorm"
+import { ClaimAbsen } from "./ClaimAbsen"
 
 @Entity("absen")
 @Index(['nidn', 'tanggal'])
@@ -30,4 +31,8 @@ export class Absen {
 
     @Column("text",{nullable: true})
     catatan_pulang: string
+    
+    @OneToOne(() => ClaimAbsen, ClaimAbsen => ClaimAbsen.Absen,{
+    })
+    ClaimAbsen: ClaimAbsen
 }
