@@ -31,6 +31,9 @@ export class Absen {
 
     @Column("text",{nullable: true})
     catatan_pulang: string
+
+    @Column("boolean")
+    otomatis_keluar: boolean
     
     @OneToOne(() => ClaimAbsen, ClaimAbsen => ClaimAbsen.Absen,{
     })

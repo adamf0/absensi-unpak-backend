@@ -377,15 +377,16 @@ cron.schedule('* * * * *', async () => {//* * * * *
     timezone: "Asia/Jakarta"
 });
 
-cron.schedule('* 22 * * *', async () => {
+cron.schedule('* * * * *', async () => {
     console.log('Running a job absen keluar, '+new Date().toISOString());
     try {
         const _db = await getConnection("cron");
         if(_db.isInitialized){
-            const yesterdayDate = moment().tz('Asia/Jakarta').format('YYYY-MM-DD 15:00:00')
+            // const yesterdayDate = moment().tz('Asia/Jakarta').format('YYYY-MM-DD')
+            const yesterdayDate = "2024-04-25"
             const result = await _db.createQueryBuilder()
                 .update(Absen)
-                .set({ absen_keluar: () => 'CURRENT_TIMESTAMP' })
+                .set({ absen_keluar: `${yesterdayDate} 15:00:00`, otomatis_keluar:"1" })
                 .where('tanggal = :yesterdayDate and absen_masuk is not null and absen_keluar is null',{yesterdayDate:yesterdayDate})
                 .execute();
             console.log(result);
