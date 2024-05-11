@@ -46,10 +46,10 @@ const storageFileClaimAbsen: Multer['StorageEngine'] = multer.diskStorage({
 
 const uploadFileCuti = multer({
     storage: storageFileCuti,
-    limits: { fileSize: 5 * 1024 * 1024 },
+    limits: { fileSize: 1024 * 1024 * 10 },
     fileFilter(req, file, callback) {
-        const extension: boolean = ['.pdf'].indexOf(path.extname(file.originalname).toLowerCase()) >= 0;
-        const mimeType: boolean = ['application/pdf'].indexOf(file.mimetype) >= 0;
+        const extension: boolean = ['.pdf','.jpeg','.jpg','.png'].indexOf(path.extname(file.originalname).toLowerCase()) >= 0;
+        const mimeType: boolean = ['application/pdf','image/jpeg','image/jpg','image/png'].indexOf(file.mimetype) >= 0;
 
         if (extension && mimeType) {
             return callback(null, true);
@@ -61,10 +61,10 @@ const uploadFileCuti = multer({
 
 const uploadFileIzin = multer({
   storage: storageFileIzin,
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 1024 * 1024 * 10 },
   fileFilter(req, file, callback) {
-      const extension: boolean = ['.pdf'].indexOf(path.extname(file.originalname).toLowerCase()) >= 0;
-      const mimeType: boolean = ['application/pdf'].indexOf(file.mimetype) >= 0;
+      const extension: boolean = ['.pdf','.jpeg','.jpg','.png'].indexOf(path.extname(file.originalname).toLowerCase()) >= 0;
+      const mimeType: boolean = ['application/pdf','image/jpeg','image/jpg','image/png'].indexOf(file.mimetype) >= 0;
 
       if (extension && mimeType) {
           return callback(null, true);
@@ -76,10 +76,10 @@ const uploadFileIzin = multer({
 
 const uploadFileClaimAbsen = multer({
   storage: storageFileClaimAbsen,
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 1024 * 1024 * 10 },
   fileFilter(req, file, callback) {
-      const extension: boolean = ['.pdf'].indexOf(path.extname(file.originalname).toLowerCase()) >= 0;
-      const mimeType: boolean = ['application/pdf'].indexOf(file.mimetype) >= 0;
+      const extension: boolean = ['.pdf','.jpeg','.jpg','.png'].indexOf(path.extname(file.originalname).toLowerCase()) >= 0;
+      const mimeType: boolean = ['application/pdf','image/jpeg','image/jpg','image/png'].indexOf(file.mimetype) >= 0;
 
       if (extension && mimeType) {
           return callback(null, true);
