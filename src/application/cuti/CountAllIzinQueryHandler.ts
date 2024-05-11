@@ -42,7 +42,7 @@ export class CountAllIzinQueryHandler implements IQueryHandler<CountAllIzinQuery
       })
     }
     const record = await _db.getRepository(Izin).findAndCount(data)
-    logger.info({filter:data, izin:record})
+    logger.info({filter:JSON.stringify(data), izin:JSON.stringify(record)})
     return record
   }
 }

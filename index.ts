@@ -93,6 +93,7 @@ import { GetClaimAbsenQueryHandler } from "./src/application/claimAbsen/GetClaim
 import { GetAllClaimAbsenQueryHandler } from "./src/application/claimAbsen/GetAllClaimAbsenQueryHandler";
 import { ClaimAbsenController } from "./src/api/controller/ClaimAbsenController";
 import { CheckAbsenIdQueryHandler } from "./src/application/claimAbsen/CheckAbsenIdQueryHandler";
+import { GetAllAbsenQueryHandler } from "./src/application/absen/GetAllAbsenQueryHandler";
 var cron = require('node-cron');
 
 dotenv.config();
@@ -220,7 +221,8 @@ container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(CreateAbsenMa
 container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(CreateAbsenKeluarCommandHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAbsenByFilterQueryHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAbsenQueryHandler);
-container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllAbsenByNIDNYearMonthQueryHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllAbsenByNIDNYearMonthQueryHandler)
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllAbsenQueryHandler);
 //</absen>
 //<cuti>
 container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(CreateCutiCommandHandler);

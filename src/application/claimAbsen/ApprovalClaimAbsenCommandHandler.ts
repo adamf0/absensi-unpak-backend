@@ -4,6 +4,8 @@ import { ApprovalClaimAbsenCommand } from './ApprovalClaimAbsenCommand';
 import { getConnection } from 'typeorm';
 import { ClaimAbsen } from '../../infrastructure/orm/ClaimAbsen';
 import { logger } from '../../infrastructure/config/logger';
+import { Absen } from '../../infrastructure/orm/Absen';
+import { StatusClaimAbsen } from '../../domain/enum/StatusClaimAbsen';
 
 @injectable()
 export class ApprovalClaimAbsenCommandHandler implements ICommandHandler<ApprovalClaimAbsenCommand> {
@@ -27,8 +29,28 @@ export class ApprovalClaimAbsenCommandHandler implements ICommandHandler<Approva
     })
     logger.info({claimAbsen:claimAbsen})
     claimAbsen.status = command.type
-
     await _db.getRepository(ClaimAbsen).save(claimAbsen);
+
+    if(claimAbsen.status==StatusClaimAbsen.Terima){
+      let absen = await _db.getRepository(Absen).findOneOrFail({
+        where: {
+          id: claimAbsen.absenId
+        },
+        relations: {},
+      })
+      if(claimAbsen.perbaikan_absen_masuk!=null || claimAbsen.perbaikan_absen_masuk!=""){
+        absen.absen_masuk = `${absen.tanggal} ${claimAbsen.perbaikan_absen_masuk}`
+      }
+      if(claimAbsen.perbaikan_absen_keluar!=null || claimAbsen.perbaikan_absen_keluar!=""){
+        absen.absen_keluar = `${absen.tanggal} ${claimAbsen.perbaikan_absen_keluar}`
+      }
+      await _db.getRepository(Absen).save(absen);
+    }
+
+    // let absen = claimAbsen.Absen
+    // absen.absen_masuk = claimAbsen.perbaikan_absen_masuk
+    // absen.absen_keluar = claimAbsen.perbaikan_absen_keluar
+    // await _db.getRepository(Absen).save(absen);
     // const application: Application = new Application(
     //   command.guid,
     //   command.jobId,

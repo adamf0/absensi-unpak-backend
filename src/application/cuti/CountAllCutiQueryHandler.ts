@@ -37,7 +37,7 @@ export class CountAllCutiQueryHandler implements IQueryHandler<CountAllCutiQuery
       })
     }
     const record = await _db.getRepository(Cuti).findAndCount(data)
-    logger.info({filter:data, cuti:record})
+    logger.info({filter:JSON.stringify(data), cuti:JSON.stringify(record)})
     return record
   }
 }

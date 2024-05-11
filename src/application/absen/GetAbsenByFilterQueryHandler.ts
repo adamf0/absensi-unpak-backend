@@ -50,7 +50,7 @@ export class GetAbsenByFilterQueryHandler implements IQueryHandler<GetAbsenByFil
       }
     }
     const record = await _db.getRepository(Absen).findAndCount(data)
-    logger.info({filter:data, absen:record})
+    logger.info({filter:JSON.stringify(data), absen:JSON.stringify(record)})
     return record
   }
 }

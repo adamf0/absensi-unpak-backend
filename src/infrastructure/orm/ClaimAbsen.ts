@@ -18,6 +18,12 @@ export class ClaimAbsen {
     @Column({type: "text", nullable: true})
     dokumen: string
 
+    @Column("varchar",{nullable: true,})
+    perbaikan_absen_masuk: string
+
+    @Column("varchar",{nullable: true})
+    perbaikan_absen_keluar: string
+
     @Column({
         type: "enum",
         enum: StatusClaimAbsen,

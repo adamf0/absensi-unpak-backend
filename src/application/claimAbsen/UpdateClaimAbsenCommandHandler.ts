@@ -31,6 +31,8 @@ export class UpdateClaimAbsenCommandHandler implements ICommandHandler<UpdateCla
     claimAbsen.catatan = command.catatan;
     if(command.dokumen !== null)
       claimAbsen.dokumen = command.dokumen
+    claimAbsen.perbaikan_absen_masuk = command.absen_masuk
+    claimAbsen.perbaikan_absen_keluar = command.absen_keluar
 
     await _db.getRepository(ClaimAbsen).save(claimAbsen);
     // const application: Application = new Application(

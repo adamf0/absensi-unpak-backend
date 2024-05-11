@@ -17,6 +17,7 @@ import { getConnection } from 'typeorm';
 import { Absen } from '../../infrastructure/orm/Absen';
 import { Dosen } from '../../infrastructure/orm/Dosen';
 import { Pengguna } from '../../infrastructure/orm/Pengguna';
+import { GetAllAbsenQuery } from '../../application/absen/GetAllAbsenQuery';
 
 @controller('/absen')
 export class AbsenController {
@@ -25,6 +26,64 @@ export class AbsenController {
         @inject(TYPES.CommandBus) private readonly _commandBus: ICommandBus,
         @inject(TYPES.QueryBus) private readonly _queryBus: IQueryBus
     ) { }
+
+    @httpGet('/')
+    async index(@request() req: Request, @response() res: Response) {
+        let nidn,nip,page,pageSize,startIndex,endIndex
+        nidn = req.query?.nidn==undefined || req.query?.nidn=="null"? null:req.query.nidn
+        nip = req.query?.nip==undefined || req.query?.nip=="null"? null:req.query.nip
+        page = req.query?.page==undefined || req.query?.page=="null"? null:parseInt(String(req.query?.page ?? "1"))
+        pageSize = req.query?.pageSize==undefined || req.query?.pageSize=="null"? null:parseInt(String(req.query?.pageSize ?? "10"))
+        startIndex = (page - 1) * pageSize;
+        endIndex = page * pageSize;
+        
+        let [data, count] = await this._queryBus.execute(
+            new GetAllAbsenQuery(
+                page==null? "all":pageSize, 
+                page==null? null:startIndex, 
+                ["undefined","null"].includes(nidn)? null:nidn,
+                ["undefined","null"].includes(nip)? null:nip,
+            )
+        );
+
+        if(page==null){
+            res.status(200).json({
+                status: 200,
+                message: null,
+                data: null,
+                list: count? data:[],
+                validation: [],
+                log: [],
+            });
+        } else{
+            const totalPage = Math.ceil(count / pageSize);
+            const nextPage = (page + 1 > totalPage) ? null : page + 1;
+            const prevPage = (page - 1 < 1) || (totalPage < page) ? null : page - 1;
+    
+            res.status(200).json({
+                status: 200,
+                message: null,
+                data: null,
+                list: {
+                    totalData: count,
+                    startIndex: startIndex,
+                    endIndex: endIndex,
+    
+                    totalPage: totalPage,
+                    pageSize: pageSize,
+                    prevPage: prevPage,
+                    linkprevPage: prevPage !== null ? req.protocol + "://" + req.get('host') + req.originalUrl.replace(/page=\d+/, `page=${prevPage}`) : null,
+                    currentPage: page,
+                    linkCurrentPage: req.protocol + "://" + req.get('host') + req.originalUrl,
+                    nextPage: nextPage,
+                    linkNextPage: nextPage !== null ? req.protocol + "://" + req.get('host') + req.originalUrl.replace(/page=\d+/, `page=${nextPage}`) : null,
+                    data: data
+                },
+                validation: [],
+                log: [],
+            });
+        }
+    }
 
     @httpGet('/check/:type/:nidn_nip/:tanggal')
     async check(@request() req: Request, @response() res: Response) {

@@ -27,9 +27,10 @@ export class ClaimAbsenController {
 
     @httpGet('/')
     async index(@request() req: Request, @response() res: Response) {
-        let nidn,nip,page,pageSize,startIndex,endIndex
+        let nidn,nip,search,page,pageSize,startIndex,endIndex
         nidn = req.query?.nidn==undefined || req.query?.nidn=="null"? null:req.query.nidn
         nip = req.query?.nip==undefined || req.query?.nip=="null"? null:req.query.nip
+        search = req.query?.search==undefined || req.query?.search=="null"? null:req.query.search
         page = req.query?.page==undefined || req.query?.page=="null"? null:parseInt(String(req.query?.page ?? "1"))
         pageSize = req.query?.pageSize==undefined || req.query?.pageSize=="null"? null:parseInt(String(req.query?.pageSize ?? "10"))
         startIndex = (page - 1) * pageSize;
@@ -41,6 +42,7 @@ export class ClaimAbsenController {
                 startIndex, 
                 ["undefined","null"].includes(nidn)? null:nidn,
                 ["undefined","null"].includes(nip)? null:nip,
+                ["undefined","null"].includes(search)? null:search,
             )
         );
         data.map((d)=>{
@@ -118,7 +120,9 @@ export class ClaimAbsenController {
             new CreateClaimAbsenCommand(
                 req.body.absenId,
                 req.body.catatan,
-                uploadResult?.file?.filename
+                uploadResult?.file?.filename,
+                req.body.absen_masuk,
+                req.body.absen_keluar,
             )
         );
 
@@ -149,7 +153,9 @@ export class ClaimAbsenController {
                 parseInt(req.body.id),
                 req.body.absenId,
                 req.body.catatan,
-                uploadResult?.file?.filename
+                uploadResult?.file?.filename,
+                req.body.absen_masuk,
+                req.body.absen_keluar,
             )
         );
 

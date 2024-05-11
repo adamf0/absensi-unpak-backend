@@ -29,16 +29,16 @@ export class CountAllCutiOnWaitingQueryHandler implements IQueryHandler<CountAll
     if (query.nidn !== null) {
       const filter = {...data,where:{...data.where,nidn: query.nidn}}
       const record = await _db.getRepository(Cuti).findAndCount(filter)
-      logger.info({filter:filter, cuti: record})
+      logger.info({filter:JSON.stringify(filter), cuti: JSON.stringify(record)})
       return record
     } else if (query.nip !== null) {
       const filter = {...data,where:{...data.where,nip: query.nip}}
       const record = await _db.getRepository(Cuti).findAndCount(filter)
-      logger.info({filter:filter, cuti: record})
+      logger.info({filter:JSON.stringify(filter), cuti: JSON.stringify(record)})
       return record
     } else{
       const record = await _db.getRepository(Cuti).findAndCount(data)
-      logger.info({filter:data, cuti: record})
+      logger.info({filter:JSON.stringify(data), cuti: JSON.stringify(record)})
       return record
     }
   }

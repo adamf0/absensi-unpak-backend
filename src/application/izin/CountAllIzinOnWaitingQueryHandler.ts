@@ -29,16 +29,16 @@ export class CountAllIzinOnWaitingQueryHandler implements IQueryHandler<CountAll
     if (query.nidn !== null) {
       const filter = {...data,where:{...data.where,nidn: query.nidn}}
       const record = await _db.getRepository(Izin).findAndCount(filter)
-      logger.info({filter:filter, izin:record})
+      logger.info({filter:JSON.stringify(filter), izin:JSON.stringify(record)})
       return record
     } else if (query.nip !== null) {
       const filter = {...data,where:{...data.where,nip: query.nip}}
       const record = await _db.getRepository(Izin).findAndCount(filter)
-      logger.info({filter:filter, izin:record})
+      logger.info({filter:JSON.stringify(filter), izin:JSON.stringify(record)})
       return record
     } else{
       const record = await _db.getRepository(Izin).findAndCount(data)
-      logger.info({filter:data, izin:record})
+      logger.info({filter:JSON.stringify(data), izin:JSON.stringify(record)})
       return record
     }
   }

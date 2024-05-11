@@ -27,7 +27,7 @@ export class GetAbsenQueryHandler implements IQueryHandler<GetAbsenQuery, any> {
       logger.info({filter:{
         nidn: query.nidn,
         tanggal: query.tanggal,
-      }, absen: record})
+      }, absen: JSON.stringify(record)})
 
       return record
     } else if(query.nip){
@@ -38,7 +38,7 @@ export class GetAbsenQueryHandler implements IQueryHandler<GetAbsenQuery, any> {
       logger.info({filter:{
         nip: query.nip,
         tanggal: query.tanggal,
-      }, absen: record})
+      }, absen: JSON.stringify(record)})
 
       return record
     }

@@ -26,7 +26,7 @@ export class GetAllAbsenByNIDNYearMonthQueryHandler implements IQueryHandler<Get
         tanggal: Like(`%${query.year_month}%`),
       }}
       const record = await _db.getRepository(Absen).find(filter)
-      logger.info({filter:filter, cuti:record})
+      logger.info({filter:JSON.stringify(filter), cuti:JSON.stringify(record)})
       return record
     } else if(query.nip){
       const filter = {...data, where:{
@@ -34,7 +34,7 @@ export class GetAllAbsenByNIDNYearMonthQueryHandler implements IQueryHandler<Get
         tanggal: Like(`%${query.year_month}%`),
       }}
       const record = await _db.getRepository(Absen).find(filter)
-      logger.info({filter:filter, cuti:record})
+      logger.info({filter:JSON.stringify(filter), cuti:JSON.stringify(record)})
       return record
     } else{
       throw new Error("invalid GetAllAbsenByNIDNYearMonthQuery")

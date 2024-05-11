@@ -3,12 +3,16 @@ import * as Yup from "yup";
 export const claimAbsenCreateSchema = Yup.object({
     absenId: Yup.string().required("absen is required"),
     catatan: Yup.string().nullable().optional(),
+    absen_masuk: Yup.string().nullable().optional(),
+    absen_keluar: Yup.string().nullable().optional(),
 })
 
 export const claimAbsenUpdateSchema = Yup.object({
     id: Yup.string().required("id is required"),
     absenId: Yup.string().required("absen is required"),
     catatan: Yup.string().nullable().optional(),
+    absen_masuk: Yup.string().nullable().optional(),
+    absen_keluar: Yup.string().nullable().optional(),
 })
 
 export const claimAbsenApprovalSchema = Yup.object({

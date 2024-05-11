@@ -20,19 +20,22 @@ export class CheckAbsenIdQueryHandler implements IQueryHandler<CheckAbsenIdQuery
     logger.info({payload:query})
     const _db = await getConnection("default");
 
-    const Absen = await _db.getRepository(ClaimAbsen).findOne({
-      where:{
-        id: parseInt(query.absenId)
-      }
-    })
+    // const Absen = await _db.getRepository(ClaimAbsen).findOne({
+    //   where:{
+    //     id: parseInt(query.absenId)
+    //   }
+    // })
     let data:FindManyOptions<ClaimAbsen> = {
       where:{
-        Absen: Absen
+        absenId: parseInt(query.absenId)
+      },
+      relations:{
+        Absen: true
       }
     }
 
     const record = await _db.getRepository(ClaimAbsen).findAndCount(data)
-    logger.info({filter:data, cuti:record})
+    logger.info({filter:JSON.stringify(data), cuti:JSON.stringify(record)})
     return record
   }
 }

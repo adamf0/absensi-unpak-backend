@@ -29,6 +29,10 @@ export class CreateClaimAbsenCommandHandler implements ICommandHandler<CreateCla
     claimAbsen.catatan = command.catatan;
     if(command.dokumen !== null)
       claimAbsen.dokumen = command.dokumen
+    if(command.absen_masuk !== null || command.absen_masuk !== "")
+      claimAbsen.perbaikan_absen_masuk = command.absen_masuk
+    if(command.absen_keluar !== null || command.absen_keluar !== "")
+      claimAbsen.perbaikan_absen_keluar = command.absen_keluar
     claimAbsen.status = "menunggu"
 
     await _db.getRepository(ClaimAbsen).save(claimAbsen);
