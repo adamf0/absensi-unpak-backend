@@ -18,6 +18,7 @@ import { Absen } from '../../infrastructure/orm/Absen';
 import { Dosen } from '../../infrastructure/orm/Dosen';
 import { Pengguna } from '../../infrastructure/orm/Pengguna';
 import { GetAllAbsenQuery } from '../../application/absen/GetAllAbsenQuery';
+import moment from 'moment';
 
 @controller('/absen')
 export class AbsenController {
@@ -144,6 +145,8 @@ export class AbsenController {
             req.params.tanggal
         );
         absensi = await this._queryBus.execute(query);
+        absensi.absen_masuk = absensi.absen_masuk!=null? moment(absensi.absen_masuk).tz('Asia/Jakarta').format("YYYY-MM-DD HH:mm:ss"):null
+        absensi.absen_keluar = absensi.absen_keluar!=null? moment(absensi.absen_keluar).tz('Asia/Jakarta').format("YYYY-MM-DD HH:mm:ss"):null
 
         res.status(200).json({
             status: 200,
