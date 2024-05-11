@@ -100,7 +100,7 @@ export class AbsenController {
         );
         list_cuti = list_cuti.reduce((acc, item) => {
             for (let i = 0; i < item.lama_cuti; i++) {
-                const tanggal = new Date(new Date(item.tanggal_pengajuan).getTime() + (i * 24 * 60 * 60 * 1000)).toISOString().split('T')[0]
+                const tanggal = new Date(new Date(item.tanggal_mulai).getTime() + (i * 24 * 60 * 60 * 1000)).toISOString().split('T')[0] //harus diubah lagi
                 const cutiObj = {
                     id: item.id,
                     tanggal: tanggal,

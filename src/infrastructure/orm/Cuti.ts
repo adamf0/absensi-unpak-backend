@@ -16,7 +16,10 @@ export class Cuti {
     nip: string
 
     @Column("date")
-    tanggal_pengajuan: string
+    tanggal_mulai: string
+
+    @Column("date")
+    tanggal_akhir: string
 
     @Column("int")
     lama_cuti: number

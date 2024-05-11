@@ -28,7 +28,7 @@ export class GetAllCutiByNIDNYearMonthQueryHandler implements IQueryHandler<GetA
     if(query.nidn){
       const filter = {...data, where:{
         nidn: query.nidn,
-        tanggal_pengajuan: Like(`%${query.year_month}%`),
+        tanggal_mulai: Like(`%${query.year_month}%`),
       }}
       const record = await _db.getRepository(Cuti).find(filter)
       logger.info({filter:JSON.stringify(filter), cuti:JSON.stringify(record)})
@@ -36,7 +36,7 @@ export class GetAllCutiByNIDNYearMonthQueryHandler implements IQueryHandler<GetA
     } else if(query.nip){
       const filter = {...data, where:{
         nip: query.nip,
-        tanggal_pengajuan: Like(`%${query.year_month}%`),
+        tanggal_mulai: Like(`%${query.year_month}%`),
       }}
       const record = await _db.getRepository(Cuti).find(filter)
       logger.info({filter:JSON.stringify(filter), cuti:JSON.stringify(record)})

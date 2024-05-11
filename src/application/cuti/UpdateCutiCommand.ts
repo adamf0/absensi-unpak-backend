@@ -4,7 +4,8 @@ export class UpdateCutiCommand extends Command {
     public id: number;
     public nidn: string|null;
     public nip: string|null;
-    public tanggal_pengajuan: string;
+    public tanggal_mulai: string;
+    public tanggal_akhir: string;
     public lama_cuti: number;
     public tujuan: string;
     public jenis_cuti: string;
@@ -14,7 +15,8 @@ export class UpdateCutiCommand extends Command {
       id:number,
       nidn:string|null,
       nip:string|null,
-      tanggal_pengajuan:string,
+      tanggal_mulai:string,
+      tanggal_akhir:string,
       lama_cuti:number,
       tujuan:string,
       jenis_cuti:string,
@@ -24,7 +26,8 @@ export class UpdateCutiCommand extends Command {
       this.id = id
       this.nidn = nidn
       this.nip = nip
-      this.tanggal_pengajuan = tanggal_pengajuan
+      this.tanggal_mulai = tanggal_mulai
+      this.tanggal_akhir = tanggal_akhir
       this.lama_cuti = lama_cuti
       this.tujuan = tujuan
       this.jenis_cuti = jenis_cuti

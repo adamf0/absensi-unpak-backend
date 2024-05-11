@@ -49,8 +49,8 @@ export class CalendarController {
         const result = [
             ...list_cuti.map((item) => ({
                 id: item?.id,
-                start: moment(item?.tanggal_pengajuan).tz('Asia/Jakarta').format('YYYY-MM-DD'),
-                end: moment(item?.tanggal_pengajuan).tz('Asia/Jakarta').add(item?.lama_cuti, 'days').format('YYYY-MM-DD'),
+                start: moment(item?.tanggal_mulai).tz('Asia/Jakarta').format('YYYY-MM-DD'),
+                end: moment(item?.tanggal_akhir).tz('Asia/Jakarta').add(item?.lama_cuti, 'days').format('YYYY-MM-DD'),
                 title: item?.tujuan,
                 backgroundColor: "#1d4ed8",
 			    borderColor: "#1d4ed8",//blue

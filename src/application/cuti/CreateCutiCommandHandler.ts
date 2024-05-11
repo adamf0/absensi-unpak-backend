@@ -28,7 +28,8 @@ export class CreateCutiCommandHandler implements ICommandHandler<CreateCutiComma
       cuti.nip = command.nip;
     }
     logger.info({cuti:cuti})
-    cuti.tanggal_pengajuan = command.tanggal_pengajuan;
+    cuti.tanggal_mulai = command.tanggal_mulai;
+    cuti.tanggal_akhir = command.tanggal_akhir;
     cuti.lama_cuti = command.lama_cuti;
     cuti.tujuan = command.tujuan;
     cuti.JenisCuti = await _db.getRepository(JenisCuti).findOne({where:{

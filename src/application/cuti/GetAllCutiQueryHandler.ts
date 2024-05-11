@@ -22,9 +22,10 @@ export class GetAllCutiQueryHandler implements IQueryHandler<GetAllCutiQuery, an
 
     if(query.nidn!=null){
       const queryBuilder = await _db.getRepository(Cuti).createQueryBuilder("cuti")
+      .leftJoinAndSelect("cuti.JenisCuti", "jenisCuti")
       .where("cuti.nidn = :nidn", { nidn: query.nidn })
-      .andWhere("(nip LIKE :search OR tanggal_pengajuan LIKE :search OR tujuan LIKE :search OR dokumen LIKE :search OR status LIKE :search OR catatan LIKE :search)", { search: `%${query.search??""}%` })
-      .orderBy('id','DESC')
+      .andWhere("(cuti.nip LIKE :search OR cuti.tanggal_mulai LIKE :search OR cuti.tanggal_akhir LIKE :search OR cuti.tujuan LIKE :search OR cuti.dokumen LIKE :search OR cuti.status LIKE :search OR cuti.catatan LIKE :search)", { search: `%${query.search??""}%` })
+      .orderBy('cuti.id','DESC')
       .take(query.take)
       .skip(query.skip)
 
@@ -34,9 +35,10 @@ export class GetAllCutiQueryHandler implements IQueryHandler<GetAllCutiQuery, an
     }
     else if(query.nip!=null){
       const queryBuilder = await _db.getRepository(Cuti).createQueryBuilder("cuti")
-      .where("nip = :nip", { nip: query.nip })
-      .andWhere("(nidn LIKE :search OR tanggal_pengajuan LIKE :search OR tujuan LIKE :search OR dokumen LIKE :search OR status LIKE :search OR catatan LIKE :search)", { search: `%${query.search??""}%` })
-      .orderBy('id','DESC')
+      .leftJoinAndSelect("cuti.JenisCuti", "jenisCuti")
+      .where("cuti.nip = :nip", { nip: query.nip })
+      .andWhere("(cuti.nidn LIKE :search OR cuti.tanggal_mulai LIKE :search OR cuti.tanggal_akhir LIKE :search OR cuti.tujuan LIKE :search OR cuti.dokumen LIKE :search OR cuti.status LIKE :search OR cuti.catatan LIKE :search)", { search: `%${query.search??""}%` })
+      .orderBy('cuti.id','DESC')
       .take(query.take)
       .skip(query.skip)
 
@@ -45,8 +47,9 @@ export class GetAllCutiQueryHandler implements IQueryHandler<GetAllCutiQuery, an
       return record
     } else{
       const queryBuilder = await _db.getRepository(Cuti).createQueryBuilder("cuti")
-      .where("(nidn LIKE :search OR nip LIKE :search OR tanggal_pengajuan LIKE :search OR tujuan LIKE :search OR dokumen LIKE :search OR status LIKE :search OR catatan LIKE :search)", { search: `%${query.search??""}%` })
-      .orderBy('id','DESC')
+      .leftJoinAndSelect("cuti.JenisCuti", "jenisCuti")
+      .where("(cuti.nidn LIKE :search OR cuti.nip LIKE :search OR cuti.tanggal_mulai LIKE :search OR cuti.tanggal_akhir LIKE :search OR cuti.tujuan LIKE :search OR cuti.dokumen LIKE :search OR cuti.status LIKE :search OR cuti.catatan LIKE :search)", { search: `%${query.search??""}%` })
+      .orderBy('cuti.id','DESC')
       .take(query.take)
       .skip(query.skip)
 
