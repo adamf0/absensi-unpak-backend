@@ -324,94 +324,94 @@ process.env.TZ = "Asia/Jakarta";
 api.listen(port, async () =>
     console.log('The application is running in %s:%s', process.env.base_url, port)
 );
-// cron.schedule('* * * * *', async () => {//* * * * *
-//     console.log('Running a job initial absensi, '+new Date().toISOString());
-//     try {
-//         const _dbSimak = await getConnection("simak");
-//         const _dbLocal = await getConnection("default");
-//         const _dbSimpeg = await getConnection("simpeg");
-//         if(_dbSimak.isInitialized && _dbLocal.isInitialized && _dbSimpeg.isInitialized){
-//             const dateNow = new Date().toISOString().slice(0, 10);
+cron.schedule('* * * * *', async () => {//* * * * *
+    console.log('Running a job initial absensi, '+new Date().toISOString());
+    try {
+        const _dbSimak = await getConnection("simak");
+        const _dbLocal = await getConnection("default");
+        const _dbSimpeg = await getConnection("simpeg");
+        if(_dbSimak.isInitialized && _dbLocal.isInitialized && _dbSimpeg.isInitialized){
+            const dateNow = new Date().toISOString().slice(0, 10);
 
-//             const listDosen = await _dbSimak.getRepository(Dosen).find();
-//             const existingAbsenDosen = await _dbLocal.getRepository(Absen).find({
-//                 where: {
-//                     tanggal: dateNow,
-//                 },
-//                 select: ['nidn'],
-//             });
-//             const existingNidnSet = new Set(existingAbsenDosen.map(absen => absen.nidn));
-//             const absenDosenInstances = listDosen
-//                 .filter(dosen => !existingNidnSet.has(dosen.NIDN))
-//                 .map(dosen => {
-//                     const absen = new Absen();
-//                     absen.nidn = dosen.NIDN;
-//                     absen.tanggal = dateNow;
-//                     return absen;
-//                 });
+            const listDosen = await _dbSimak.getRepository(Dosen).find();
+            const existingAbsenDosen = await _dbLocal.getRepository(Absen).find({
+                where: {
+                    tanggal: dateNow,
+                },
+                select: ['nidn'],
+            });
+            const existingNidnSet = new Set(existingAbsenDosen.map(absen => absen.nidn));
+            const absenDosenInstances = listDosen
+                .filter(dosen => !existingNidnSet.has(dosen.NIDN))
+                .map(dosen => {
+                    const absen = new Absen();
+                    absen.nidn = dosen.NIDN;
+                    absen.tanggal = dateNow;
+                    return absen;
+                });
 
-//             await _dbLocal.getRepository(Absen)
-//                 .createQueryBuilder()
-//                 .insert()
-//                 .values(absenDosenInstances)
-//                 .orIgnore()
-//                 .execute();
+            await _dbLocal.getRepository(Absen)
+                .createQueryBuilder()
+                .insert()
+                .values(absenDosenInstances)
+                .orIgnore()
+                .execute();
 
-//             const listPengguna = await _dbSimpeg.getRepository(Pengguna).find({
-//                 where: {
-//                     level: "PEGAWAI"
-//                 },
-//             });
-//             const existingAbsenPegawai = await _dbLocal.getRepository(Absen).find({
-//                 where: {
-//                     tanggal: dateNow
-//                 },
-//                 select: ['nip'],
-//             });
-//             const existingNipSet = new Set(existingAbsenPegawai.map(absen => absen.nip));
-//             const absenPegawaiInstances = listPengguna
-//                 .filter(pegawai => !existingNipSet.has(pegawai.username.toString()))
-//                 .map(pegawai => {
-//                     const absen = new Absen();
-//                     absen.nip = pegawai.username;
-//                     absen.tanggal = dateNow;
-//                     return absen;
-//                 });
+            const listPengguna = await _dbSimpeg.getRepository(Pengguna).find({
+                where: {
+                    level: "PEGAWAI"
+                },
+            });
+            const existingAbsenPegawai = await _dbLocal.getRepository(Absen).find({
+                where: {
+                    tanggal: dateNow
+                },
+                select: ['nip'],
+            });
+            const existingNipSet = new Set(existingAbsenPegawai.map(absen => absen.nip));
+            const absenPegawaiInstances = listPengguna
+                .filter(pegawai => !existingNipSet.has(pegawai.username.toString()))
+                .map(pegawai => {
+                    const absen = new Absen();
+                    absen.nip = pegawai.username;
+                    absen.tanggal = dateNow;
+                    return absen;
+                });
 
-//             await _dbLocal.getRepository(Absen)
-//                 .createQueryBuilder()
-//                 .insert()
-//                 .values(absenPegawaiInstances)
-//                 .orIgnore()
-//                 .execute();
-//         }
-//         // db.destroy()
-//     } catch (error) {
-//         console.error('Error occurred:', error);
-//     }
-// }, {
-//     scheduled: true,
-//     timezone: "Asia/Jakarta"
-// });
+            await _dbLocal.getRepository(Absen)
+                .createQueryBuilder()
+                .insert()
+                .values(absenPegawaiInstances)
+                .orIgnore()
+                .execute();
+        }
+        // db.destroy()
+    } catch (error) {
+        console.error('Error occurred:', error);
+    }
+}, {
+    scheduled: true,
+    timezone: "Asia/Jakarta"
+});
 
-// cron.schedule('* 22 * * *', async () => {
-//     console.log('Running a job absen keluar, '+new Date().toISOString());
-//     try {
-//         const _db = await getConnection("cron");
-//         if(_db.isInitialized){
-//             const yesterdayDate = moment().tz('Asia/Jakarta').format('YYYY-MM-DD')
-//             const result = await _db.createQueryBuilder()
-//                 .update(Absen)
-//                 .set({ absen_keluar: `${yesterdayDate} 15:00:00`, otomatis_keluar:"1" })
-//                 .where('tanggal = :yesterdayDate and absen_masuk is not null and absen_keluar is null',{yesterdayDate:yesterdayDate})
-//                 .execute();
-//             console.log(result);
-//         }
-//         // db.destroy()
-//     } catch (error) {
-//         console.error('Error occurred:', error);
-//     }
-// }, {
-//     scheduled: true,
-//     timezone: "Asia/Jakarta"
-// });
+cron.schedule('* 22 * * *', async () => {
+    console.log('Running a job absen keluar, '+new Date().toISOString());
+    try {
+        const _db = await getConnection("cron");
+        if(_db.isInitialized){
+            const yesterdayDate = moment().tz('Asia/Jakarta').format('YYYY-MM-DD')
+            const result = await _db.createQueryBuilder()
+                .update(Absen)
+                .set({ absen_keluar: `${yesterdayDate} 15:00:00`, otomatis_keluar:"1" })
+                .where('tanggal = :yesterdayDate and absen_masuk is not null and absen_keluar is null',{yesterdayDate:yesterdayDate})
+                .execute();
+            console.log(result);
+        }
+        // db.destroy()
+    } catch (error) {
+        console.error('Error occurred:', error);
+    }
+}, {
+    scheduled: true,
+    timezone: "Asia/Jakarta"
+});
