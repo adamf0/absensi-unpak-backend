@@ -27,16 +27,17 @@ export class InfoController {
         absen.absen_masuk = absen.absen_masuk!=null? moment(absen.absen_masuk).tz('Asia/Jakarta').format("YYYY-MM-DD HH:mm:ss"):null
         
         const currentTime = moment(absen.absen_masuk).tz('Asia/Jakarta');
-        const absenTime = moment("08:00:00", 'HH:mm:ss').tz('Asia/Jakarta');
-        return currentTime.isAfter(absenTime);
+        const absenTime = moment("08:00:00", 'HH:mm:ss').tz('Asia/Jakarta').add('1', 'minutes');
+        return currentTime.isSameOrAfter(absenTime);
     }
 
     is8Hour(absen) {
         absen.absen_masuk = absen.absen_masuk!=null? moment(absen.absen_masuk).tz('Asia/Jakarta').format("YYYY-MM-DD HH:mm:ss"):null
+        const requireCheckout = absen.catatan_telat!=null ? moment(moment().tz('Asia/Jakarta').format('YYYY-MM-DD')+' 14:59:00').tz('Asia/Jakarta'):moment(absen.absen_masuk).tz('Asia/Jakarta').startOf('day').add(8, 'hours');
         // const masuk = moment(absen.absen_masuk).tz('Asia/Jakarta')
         // return masuk.isAfter(masuk.startOf('day').add(8, 'hours'));
         const masuk = moment(absen.absen_masuk).tz('Asia/Jakarta')
-        return this.getCurrentTime().isAfter(moment(absen.absen_masuk).tz('Asia/Jakarta').add(8, 'hours'));
+        return this.getCurrentTime().isSameOrAfter(moment(absen.absen_masuk).tz('Asia/Jakarta').add(8, 'hours'));
     }
 
     @httpGet('/')
