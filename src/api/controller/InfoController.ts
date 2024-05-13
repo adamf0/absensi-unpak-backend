@@ -20,16 +20,23 @@ export class InfoController {
         @inject(TYPES.QueryBus) private readonly _queryBus: IQueryBus
     ) { }
 
-
+    getCurrentTime(){
+        return moment().tz('Asia/Jakarta')
+    }
     isLate(absen) {
+        absen.absen_masuk = absen.absen_masuk!=null? moment(absen.absen_masuk).tz('Asia/Jakarta').format("YYYY-MM-DD HH:mm:ss"):null
+        
         const currentTime = moment(absen.absen_masuk).tz('Asia/Jakarta');
         const absenTime = moment("08:00:00", 'HH:mm:ss').tz('Asia/Jakarta');
         return currentTime.isAfter(absenTime);
     }
 
     is8Hour(absen) {
+        absen.absen_masuk = absen.absen_masuk!=null? moment(absen.absen_masuk).tz('Asia/Jakarta').format("YYYY-MM-DD HH:mm:ss"):null
+        // const masuk = moment(absen.absen_masuk).tz('Asia/Jakarta')
+        // return masuk.isAfter(masuk.startOf('day').add(8, 'hours'));
         const masuk = moment(absen.absen_masuk).tz('Asia/Jakarta')
-        return masuk.isAfter(masuk.startOf('day').add(8, 'hours'));
+        return this.getCurrentTime().isAfter(moment(absen.absen_masuk).tz('Asia/Jakarta').add(8, 'hours'));
     }
 
     @httpGet('/')
