@@ -60,9 +60,9 @@ export class CalendarController {
                 id: item?.id,
                 start: moment(item?.tanggal).tz('Asia/Jakarta').format('YYYY-MM-DD'),
                 end: moment(item?.tanggal).tz('Asia/Jakarta').format('YYYY-MM-DD'),
-                title: item?.absen_masuk==null? "Tidak Masuk":(item?.catatan_telat==null? "Masuk":`Telat karena ${item?.catatan_telat}`),
-                backgroundColor: item?.absen_masuk==null? "#b91c1c":(item?.catatan_telat==null? "#15803d":`#000`),
-			    borderColor: item?.absen_masuk==null? "#b91c1c":(item?.catatan_telat==null? "#15803d":`#000`),
+                title: item?.absen_masuk==null? "Tidak Masuk":(item?.catatan_telat==null || item?.catatan_telat=="" ? "Masuk":`Telat karena ${item?.catatan_telat}`),
+                backgroundColor: item?.absen_masuk==null? "#b91c1c":(item?.catatan_telat==null || item?.catatan_telat=="" ? "#15803d":`#000`),
+			    borderColor: item?.absen_masuk==null? "#b91c1c":(item?.catatan_telat==null || item?.catatan_telat=="" ? "#15803d":`#000`),
             })), //red green black
             ...list_izin.map((item) => ({
                 id: item?.id,
