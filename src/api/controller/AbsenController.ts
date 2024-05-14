@@ -254,7 +254,7 @@ export class AbsenController {
             );
             list_cuti = list_cuti.reduce((acc, item) => {
                 for (let i = 0; i < item.lama_cuti; i++) {
-                    const tanggal = new Date(new Date(item.tanggal_pengajuan).getTime() + (i * 24 * 60 * 60 * 1000)).toISOString().split('T')[0]
+                    const tanggal = new Date(new Date(item.tanggal_mulai).getTime() + (i * 24 * 60 * 60 * 1000)).toISOString().split('T')[0]
                     const cutiObj = {
                         id: item.id,
                         tanggal: tanggal,
@@ -279,7 +279,7 @@ export class AbsenController {
                 new GetAllIzinByNIDNYearMonthQuery(req.body?.nidn,req.body?.nip, year_month)
             );
             list_izin = list_izin.reduce((acc, item) => {
-                if (item.status=="terima" && req.body.tanggal == new Date(item.tanggal_pengajuan).toISOString().split('T')[0]) {
+                if (item.status=="terima" && req.body.tanggal == new Date(item.mulai).toISOString().split('T')[0]) {
                     acc.push(item);
                 }
                 return acc

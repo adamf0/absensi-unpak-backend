@@ -41,12 +41,12 @@ export class CreateAbsenMasukCommandHandler implements ICommandHandler<CreateAbs
     logger.info({absen:absen})
     
     if(absen==null) throw new Error(`data absen ${target} pada tanggal ${command.tanggal} tidak ditemukan`)
-    const x = moment(`${command.tanggal} ${command.absen_masuk}:00`).tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss')
-
+    const x = moment(`${command.tanggal} ${command.absen_masuk}`).tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss')
+    logger.info({absen_masuk:x})
+    
     absen.absen_masuk = x;
     absen.catatan_telat = command.catatan;
     await _db.getRepository(Absen).save(absen);
-    logger.info({absen_masuk:x})
 
     // const application: Application = new Application(
     //   command.guid,
