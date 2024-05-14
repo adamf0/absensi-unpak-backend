@@ -18,7 +18,7 @@ export class GetSPPDQueryHandler implements IQueryHandler<GetSPPDQuery, any> {
   async execute(query: GetSPPDQuery) {
     const _db = await getConnection("default");
     
-    return await _db.getRepository(SPPD).findOneOrFail({
+    let record = await _db.getRepository(SPPD).findOneOrFail({
         where: {
           id: query.id
         },
@@ -27,5 +27,8 @@ export class GetSPPDQueryHandler implements IQueryHandler<GetSPPDQuery, any> {
           anggota: true
         },
     })
+    record["tester"] = "yey"
+
+    return record
   }
 }

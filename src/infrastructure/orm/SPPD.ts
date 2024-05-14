@@ -1,5 +1,5 @@
 import "reflect-metadata"
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, OneToMany, JoinColumn } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, OneToMany, JoinColumn, ManyToOne, ManyToMany, JoinTable } from "typeorm"
 import { JenisSPPD } from "./JenisSPPD"
 import { SPPDAnggota } from "./SPPDAnggota"
 
@@ -30,7 +30,7 @@ export class SPPD {
     @Column({type: "text", nullable: true})
     keterangan:string
 
-    @OneToOne(() => JenisSPPD, sppd => sppd.sppd, {
+    @ManyToOne(() => JenisSPPD, sppd => sppd.sppd, {
         eager: true,
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
@@ -40,5 +40,6 @@ export class SPPD {
 
     @OneToMany(() => SPPDAnggota, anggota => anggota.sppd,{
     })
-    anggota: SPPDAnggota
+    @JoinColumn()
+    anggota: SPPDAnggota[]
 }

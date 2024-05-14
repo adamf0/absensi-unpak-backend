@@ -110,6 +110,12 @@ import { UpdateSPPDCommandHandler } from "./src/application/sppd/UpdateSPPDComma
 import { JenisSPPD } from "./src/infrastructure/orm/JenisSPPD";
 import { SPPD } from "./src/infrastructure/orm/SPPD";
 import { SPPDAnggota } from "./src/infrastructure/orm/SPPDAnggota";
+import { JenisSPPDController } from "./src/api/controller/JenisSPPDController";
+import { CreateJenisSPPDCommandHandler } from "./src/application/jenis_sppd/CreateJenisSPPDCommandHandler";
+import { DeleteJenisSPPDCommandHandler } from "./src/application/jenis_sppd/DeleteJenisSPPDCommandHandler";
+import { GetAllJenisSPPDQueryHandler } from "./src/application/jenis_sppd/GetAllJenisSPPDQueryHandler";
+import { GetJenisSPPDQueryHandler } from "./src/application/jenis_sppd/GetJenisSPPDQueryHandler";
+import { UpdateJenisSPPDCommandHandler } from "./src/application/jenis_sppd/UpdateJenisSPPDCommandHandler";
 var cron = require('node-cron');
 
 dotenv.config();
@@ -198,7 +204,7 @@ async function connect(){
             database: process.env.db_database,
             entities: [Absen,ClaimAbsen,MasterCalendar, JenisSPPD, SPPD, SPPDAnggota],
             logging: true,
-            synchronize: true,
+            synchronize: false,
             timezone: "+07:00"
         },
         {
@@ -306,6 +312,13 @@ container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(DeleteSPPDCom
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetSPPDQueryHandler);
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllSPPDQueryHandler);
 //</sppd>
+//<jenis_sppd>
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(CreateJenisSPPDCommandHandler);
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(UpdateJenisSPPDCommandHandler);
+container.bind<ICommandHandler<ICommand>>(TYPES.CommandHandler).to(DeleteJenisSPPDCommandHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetJenisSPPDQueryHandler);
+container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllJenisSPPDQueryHandler);
+//</jenis_sppd>
 //<calendar>
 container.bind<IQueryHandler<IQuery>>(TYPES.QueryHandler).to(GetAllAbsenByNIDNYearMonthQueryHandler);
 //</calendar>
@@ -333,6 +346,7 @@ container.bind<InfoController>(TYPES.Controller).to(InfoController);
 container.bind<ClaimAbsenController>(TYPES.Controller).to(ClaimAbsenController);
 container.bind<MasterCalendarController>(TYPES.Controller).to(MasterCalendarController);
 container.bind<SPPDController>(TYPES.Controller).to(SPPDController);
+container.bind<JenisSPPDController>(TYPES.Controller).to(JenisSPPDController);
 container.bind<AuthController>(TYPES.Controller).to(AuthController);
 
 const api: Application = container.get<Application>(TYPES.ApiServer);

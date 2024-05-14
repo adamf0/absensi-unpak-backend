@@ -11,6 +11,7 @@ import { DeleteSPPDCommand } from '../../application/sppd/DeleteSPPDCommand';
 import { GetSPPDQuery } from '../../application/sppd/GetSPPDQuery';
 import { UpdateSPPDCommand } from '../../application/sppd/UpdateSPPDCommand';
 import { GetAllSPPDQuery } from '../../application/sppd/GetAllSPPDQuery';
+import { logger } from '../../infrastructure/config/logger';
 
 @controller('/sppd')
 export class SPPDController {
@@ -31,7 +32,7 @@ export class SPPDController {
         startIndex = (page - 1) * pageSize;
         endIndex = page * pageSize;
 
-        let [data, count] = await this._queryBus.execute(
+        let {record, count} = await this._queryBus.execute(
             new GetAllSPPDQuery(
                 pageSize,
                 startIndex,
@@ -40,7 +41,6 @@ export class SPPDController {
                 ["undefined", "null"].includes(search) ? null : search,
             )
         );
-        data.map(d => d.dokumen = d.dokumen ? 1 : 0)
 
         const totalPage = Math.ceil(count / pageSize);
         const nextPage = (page + 1 > totalPage) ? null : page + 1;
@@ -63,7 +63,7 @@ export class SPPDController {
                 linkCurrentPage: req.protocol + "://" + req.get('host') + req.originalUrl,
                 nextPage: nextPage,
                 linkNextPage: nextPage !== null ? req.protocol + "://" + req.get('host') + req.originalUrl.replace(/page=\d+/, `page=${nextPage}`) : null,
-                data: data
+                data: record
             },
             validation: [],
             log: [],

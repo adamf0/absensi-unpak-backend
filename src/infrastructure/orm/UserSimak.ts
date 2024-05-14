@@ -25,7 +25,6 @@ export class UserSimak {
     })
     level: string
 
-
     @OneToOne(() => Dosen, Dosen => Dosen.UserSimak, {
         eager: true,
         onDelete: "CASCADE",

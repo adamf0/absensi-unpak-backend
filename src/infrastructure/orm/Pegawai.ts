@@ -9,7 +9,6 @@ export class Pegawai {
     // id_n_pribadi: number
 
     @PrimaryColumn({length: 30, type: "varchar"})
-    // @Column({length: 30, type: "varchar"})
     nip: string
 
     @Column({length: 30, type: "varchar"})

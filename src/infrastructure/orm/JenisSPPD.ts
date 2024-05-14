@@ -1,5 +1,5 @@
 import "reflect-metadata"
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne} from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, ManyToOne} from "typeorm"
 import { SPPD } from "./SPPD"
 
 @Entity("jenis_sppd")
@@ -11,7 +11,7 @@ export class JenisSPPD {
     @Column({length: 255, type: "varchar"})
     nama: string
 
-    @OneToOne(() => SPPD, sppd => sppd.jenisSppd,{
+    @ManyToOne(() => SPPD, sppd => sppd.jenisSppd,{
     })
-    sppd: SPPD
+    sppd: SPPD[]
 }

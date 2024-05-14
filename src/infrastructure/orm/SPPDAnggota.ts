@@ -1,5 +1,5 @@
 import "reflect-metadata"
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, ManyToMany, OneToMany, JoinTable } from "typeorm"
 import { JenisSPPD } from "./JenisSPPD"
 import { SPPD } from "./SPPD"
 
@@ -23,6 +23,5 @@ export class SPPDAnggota {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
     })
-    @JoinColumn()
     sppd: SPPD
 }
